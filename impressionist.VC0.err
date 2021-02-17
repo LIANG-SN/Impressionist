@@ -1,0 +1,10 @@
+/COM,ANSYS RELEASE 2019 R2           BUILD 19.4      UP20190416       16:35:30
+
+ *** ERROR ***                           CP =       0.781   TIME= 16:35:33
+ Data file \\VDIDRIVE\MYHOME\sliangal\COMP4411\ImpSkelS20\impressionist.V
+ C.db has incorrect format, is missing READ/WRITE permission, or is      
+ empty for RESUME.                                                       
+
+ *** WARNING ***                         CP =       0.781   TIME= 16:35:33
+ WHILE PROCESSING FILE BASED INPUT (/INPUT OR MACRO) AN ERROR HAS        
+ OCCURRED.  SHOULD INPUT PROCESSING BE SUSPENDED?                        
