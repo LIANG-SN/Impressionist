@@ -75,13 +75,15 @@ void OriginalView::draw()
 		glDrawPixels( drawWidth, drawHeight, GL_RGB, GL_UNSIGNED_BYTE, bitstart );
 
 		// draw marker
-		glBegin(GL_POINT);
-		
-		glPointSize(3);
-		glColor3i(1, 0, 0);
-		glVertex2d(marker.x, marker.y);
-
-		glEnd();
+		if (marker.x >= 0 && marker.y >= 0 && marker.x < m_nWindowWidth && marker.y < m_nWindowHeight)
+		{
+			glPointSize(5);
+			glEnable(GL_POINT_SMOOTH);
+			glBegin(GL_POINTS);
+				glColor3f(1, 0, 0);
+				glVertex2d(marker.x, marker.y);
+			glEnd();
+		}
 	}
 			
 	glFlush();

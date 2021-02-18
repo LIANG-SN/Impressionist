@@ -30,7 +30,7 @@ public:
 
 	void resizeWindow(int width, int height);
 
-	void setMarker(Point cursor) { marker = cursor; redraw(); }
+	void setMarker(const Point cursor) { marker = cursor; redraw(); }
 
 	ImpressionistDoc*	m_pDoc;
 
