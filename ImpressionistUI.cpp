@@ -314,6 +314,10 @@ void ImpressionistUI::cb_swapOriginPaint(Fl_Menu_* o, void* v)
 	whoami(o)->m_paintView->refresh();
 	whoami(o)->m_origView->refresh();
 }
+void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
+{
+	whoami(o)->getDocument()->undo();
+}
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -385,6 +389,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image },
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushes },
 		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
+	    { "Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
 		{ 0 },
@@ -435,7 +440,7 @@ ImpressionistUI::ImpressionistUI() {
 
 	// install original view window
 	m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
-	m_origView->box(FL_DOWN_FRAME);
+	m_origView->box(FL_DOWN_FRAME); // down frame: FLTK box appearence type
 	m_origView->deactivate();
 
 	group->end();

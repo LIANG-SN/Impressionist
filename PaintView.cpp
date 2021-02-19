@@ -112,6 +112,7 @@ void PaintView::draw()
 		switch (eventToDo)
 		{
 		case LEFT_MOUSE_DOWN:
+			m_pDoc->confirmLastModify();
 			m_pDoc->m_pCurrentBrush->BrushBegin(source, target);
 			break;
 		case LEFT_MOUSE_DRAG:
@@ -253,7 +254,7 @@ void PaintView::SaveCurrentContent()
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ROW_LENGTH, m_pDoc->m_nPaintWidth);
-
+	// read from front buffer to m_pPaintBitstart(m_ucPainting)
 	glReadPixels(0,
 		m_nWindowHeight - m_nDrawHeight,
 		m_nDrawWidth,
@@ -273,6 +274,7 @@ void PaintView::RestoreContent()
 	glRasterPos2i(0, m_nWindowHeight - m_nDrawHeight);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, m_pDoc->m_nPaintWidth);
+	// write data from m_pPaintBitstart(m_ucPainting) to frame buffer
 	glDrawPixels(m_nDrawWidth,
 		m_nDrawHeight,
 		GL_RGB,

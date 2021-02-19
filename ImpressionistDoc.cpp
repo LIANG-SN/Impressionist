@@ -98,6 +98,17 @@ int ImpressionistDoc::getLineWidth() { return m_pUI->getLineWidth(); }
 int ImpressionistDoc::getLineAngle() { return m_pUI->getLineAngle(); }
 void ImpressionistDoc::setLineAngle(double angle) { m_pUI->setLineAngle(angle); }
 double ImpressionistDoc::getAlpha() { return m_pUI->getAlpha(); }
+void ImpressionistDoc::confirmLastModify()
+{
+	memcpy(m_ucPainting_prev, m_ucPainting, m_nWidth * m_nHeight * 3);
+}
+void ImpressionistDoc::undo()
+{
+	memcpy(m_ucPainting, m_ucPainting_prev, m_nWidth * m_nHeight * 3);
+	// todo: review this
+	// m_pUI->m_paintView->RestoreContent();
+	m_pUI->m_paintView->refresh();
+}
 //---------------------------------------------------------
 // Load the specified image
 // This is called by the UI when the load image button is 
@@ -131,6 +142,8 @@ int ImpressionistDoc::loadImage(char *iname)
 	// allocate space for draw view
 	m_ucPainting	= new unsigned char [width*height*3];
 	memset(m_ucPainting, 0, width*height*3);
+	m_ucPainting_prev = new unsigned char[width * height * 3];
+	memset(m_ucPainting_prev, 0, width * height * 3);
 
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
