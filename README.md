@@ -12,7 +12,7 @@ HKUST COMP4411 Project1
 - **1 Bell taskes**
   1. [ ] scale color channel
   2. [ ] blur/sharpen brush
-  3. [ ] undo
+  3. [x] undo
   4. [ ] dissolve one image into another
 - **1 Bell & 1 Whistle taskes**
   1. [ ] fade in or fade out the original image beneath the user's brush strokes on the canvas.
