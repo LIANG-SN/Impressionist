@@ -5,15 +5,15 @@
 // The header file for Point Brush. 
 //
 
-#ifndef CIRCLEBRUSH_H
-#define CIRCLEBRUSH_H
+#ifndef SCATTEREDCIRCLEBRUSH_H
+#define SCATTEREDCIRCLEBRUSH_H
 
-#include "ImpBrush.h"
+#include "CircleBrush.h"
 
-class CircleBrush : public ImpBrush
+class ScatteredCircleBrush : public CircleBrush
 {
 public:
-	CircleBrush(ImpressionistDoc* pDoc = NULL, char* name = NULL);
+	ScatteredCircleBrush(ImpressionistDoc* pDoc = NULL, char* name = NULL);
 
 	void BrushBegin(const Point source, const Point target);
 	void BrushMove(const Point source, const Point target);

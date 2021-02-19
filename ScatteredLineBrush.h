@@ -1,19 +1,19 @@
 #pragma once
 //
-// CircleBrush.h
+// PointBrush.h
 //
 // The header file for Point Brush. 
 //
 
-#ifndef CIRCLEBRUSH_H
-#define CIRCLEBRUSH_H
+#ifndef SCATTEREDLINEBRUSH_H
+#define SCATTEREDLINEBRUSH_H
 
-#include "ImpBrush.h"
+#include "LineBrush.h"
 
-class CircleBrush : public ImpBrush
+class ScatteredLineBrush : public LineBrush
 {
 public:
-	CircleBrush(ImpressionistDoc* pDoc = NULL, char* name = NULL);
+	ScatteredLineBrush(ImpressionistDoc* pDoc = NULL, char* name = NULL);
 
 	void BrushBegin(const Point source, const Point target);
 	void BrushMove(const Point source, const Point target);

@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bitmap.cpp" />
+    <ClCompile Include="CircleBrush.cpp" />
     <ClCompile Include="ImpBrush.cpp" />
     <ClCompile Include="Impressionist.cpp" />
     <ClCompile Include="ImpressionistDoc.cpp" />
@@ -148,6 +149,8 @@
     <ClCompile Include="OriginalView.cpp" />
     <ClCompile Include="PaintView.cpp" />
     <ClCompile Include="PointBrush.cpp" />
+    <ClCompile Include="ScatteredCircleBrush.cpp" />
+    <ClCompile Include="ScatteredLineBrush.cpp" />
     <ClCompile Include="ScatterPointBrush.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +164,8 @@
     <ClInclude Include="OriginalView.h" />
     <ClInclude Include="PaintView.h" />
     <ClInclude Include="PointBrush.h" />
+    <ClInclude Include="ScatteredCircleBrush.h" />
+    <ClInclude Include="ScatteredLineBrush.h" />
     <ClInclude Include="ScatterPointBrush.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -27,25 +27,25 @@ public:
 	ImpressionistUI();
 
 	// The FLTK widgets
-	Fl_Window*			m_mainWindow;
-	Fl_Menu_Bar*		m_menubar;
-								
-	PaintView*			m_paintView;
-	OriginalView*		m_origView;
+	Fl_Window* m_mainWindow;
+	Fl_Menu_Bar* m_menubar;
 
-// for brush dialog
-	Fl_Window*			m_brushDialog;
-	Fl_Choice*			m_BrushTypeChoice;
+	PaintView* m_paintView;
+	OriginalView* m_origView;
 
-	Fl_Slider*			m_BrushSizeSlider;
-	Fl_Button*          m_ClearCanvasButton;
+	// for brush dialog
+	Fl_Window* m_brushDialog;
+	Fl_Choice* m_BrushTypeChoice;
 
-	Fl_Slider*			m_lineWidthSlider;
-	Fl_Slider*			m_lineAngleSlider;
+	Fl_Slider* m_BrushSizeSlider;
+	Fl_Button* m_ClearCanvasButton;
+
+	Fl_Slider* m_lineWidthSlider;
+	Fl_Slider* m_lineAngleSlider;
 	Fl_Choice* m_lineDirectionChoice;
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
-	ImpressionistDoc*	getDocument();
+	ImpressionistDoc* getDocument();
 
 	void				show();
 	void				resize_windows(int w, int h);
@@ -58,11 +58,11 @@ public:
 	void 				setLineWidth(int width);
 	int					getLineAngle();
 	void 				setLineAngle(int angle);
-	double				getAlpha() { return alpha;  }
+	double				getAlpha() { return alpha; }
 	void				setAlpha(double alpha) { this->alpha = alpha; }
 
 private:
-	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
+	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
 
 	// All attributes here (attributes of the brush)
 	int		m_nSize;
@@ -72,10 +72,10 @@ private:
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
-	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE+1];
+	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE + 1];
 	static Fl_Menu_Item		lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1];
 
-	static ImpressionistUI*	whoami(Fl_Menu_* o);
+	static ImpressionistUI* whoami(Fl_Menu_* o);
 
 	// All callbacks here.  Callbacks are declared 
 	// static
@@ -92,6 +92,7 @@ private:
 	static void cb_lineWidthSlides(Fl_Widget* o, void* v);
 	static void cb_lineAngleSlides(Fl_Widget* o, void* v);
 	static void cb_alphaSlides(Fl_Widget* o, void* v);
+	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 };
 
 #endif
