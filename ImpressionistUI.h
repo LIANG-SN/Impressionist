@@ -95,6 +95,7 @@ private:
 	static void cb_alphaSlides(Fl_Widget* o, void* v);
 	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
+	static void cb_auto_paint(Fl_Menu_* o, void* v);
 };
 
 #endif

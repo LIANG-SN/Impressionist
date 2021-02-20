@@ -10,22 +10,13 @@
 #include "paintview.h"
 #include "ImpBrush.h"
 #include <cmath>
-
-#define LEFT_MOUSE_DOWN		1
-#define LEFT_MOUSE_DRAG		2
-#define LEFT_MOUSE_UP		3
-#define RIGHT_MOUSE_DOWN	4
-#define RIGHT_MOUSE_DRAG	5
-#define RIGHT_MOUSE_UP		6
-
+#include <algorithm>
 
 #ifndef WIN32
 #define min(a, b)	( ( (a)<(b) ) ? (a) : (b) )
 #define max(a, b)	( ( (a)>(b) ) ? (a) : (b) )
 #endif
 
-static int		eventToDo;
-static int		isAnEvent = 0; // The better way may be to maintain a message queue for it ?
 static Point	coord;
 
 PaintView::PaintView(int			x,
@@ -144,6 +135,28 @@ void PaintView::draw()
 			double dy = target.y - rightMouseStart.y;
 
 			m_pDoc->setLineAngle(atan2(dy, dx) / M_PI / 2 * 360);
+		}
+		break;
+		case AUTO_PAINT:
+		{
+			int numPixels = drawHeight * drawWidth;
+			int* pixels = new int[numPixels];
+			// to do: optimize this?
+			for (int i = 0; i < numPixels; i++)
+				pixels[i] = i;
+			std::random_shuffle(pixels, pixels + numPixels - 1);
+			m_pDoc->m_pCurrentBrush->BrushBegin({ m_nStartCol, m_nEndRow}, {0, m_nWindowHeight});
+			for (int i = 0; i < numPixels; i++)
+			{
+				int x = pixels[i] % drawWidth;
+				int y = pixels[i] / drawWidth;
+				Point s(x + m_nStartCol, m_nEndRow - y);//original view
+				Point t(x, m_nWindowHeight - y);// paint view
+				m_pDoc->m_pCurrentBrush->BrushMove(s, t);
+			}
+			m_pDoc->m_pCurrentBrush->BrushEnd({ m_nStartCol, m_nEndRow }, { 0, m_nWindowHeight });
+			SaveCurrentContent();
+			RestoreContent();
 		}
 		break;
 		default:

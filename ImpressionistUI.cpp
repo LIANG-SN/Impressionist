@@ -326,6 +326,12 @@ void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
 {
 	whoami(o)->getDocument()->undo();
 }
+void ImpressionistUI::cb_auto_paint(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_paintView->setEventType(AUTO_PAINT);
+	whoami(o)->m_paintView->setEventTrue();
+	whoami(o)->m_paintView->refresh();
+}
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -399,7 +405,9 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
 	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
 		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
+		{"Auto paint", NULL, (Fl_Callback*)ImpressionistUI::cb_auto_paint},
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
+		// devide
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
 		{ 0 },
 
