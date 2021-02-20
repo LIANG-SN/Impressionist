@@ -80,6 +80,8 @@ private:
 	// All callbacks here.  Callbacks are declared 
 	// static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
+	static void cb_load_another_image(Fl_Menu_* o, void* v);
+	static void cb_load_edge_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_dissolve_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
@@ -96,6 +98,7 @@ private:
 	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
 	static void cb_auto_paint(Fl_Menu_* o, void* v);
+	static void cb_show_image_choice(Fl_Menu_* o, void* v);
 };
 
 #endif

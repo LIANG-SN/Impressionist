@@ -42,33 +42,58 @@ void LineBrush::BrushMove(const Point source, const Point target)
 	double angle;
 	switch (lineDirectionChoice)
 	{
-	case SLIDER_RIGHT_CLICK:
-		angle = pDoc->getLineAngle();
-		break;
-	case BRUSH_DIRECTION:
-		angle = pDoc->brushMoveAngle;
-		break;
-	case GRADIENT:
-		int sobel_x[3][3] =
-		{
-			{ 1, 0, -1 },
-			{ 2, 0, -2 },
-			{ 1, 0, -1 }
-		};
-		int Gx = 0, Gy = 0;
-		for (int i = -1; i <= 1; i++)
-		{
-			for (int j = -1; j <= 1; j++)
-			{
-				GLubyte* pixel = pDoc->GetOriginalPixel(source.x + i, source.y + j);
-				// formula from tutorial doc page 19
-				int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
-				Gx += sobel_x[i + 1][j + 1] * pixelValue;
-				Gy += sobel_x[j + 1][i + 1] * pixelValue;
-			}
-		}
-		angle = atan2(Gx, Gy) / M_PI / 2.0 * 360; // prependicular to gradient
-
+	    case SLIDER_RIGHT_CLICK:
+	    	angle = pDoc->getLineAngle();
+	    	break;
+	    case BRUSH_DIRECTION:
+	    	angle = pDoc->brushMoveAngle;
+	    	break;
+	    case GRADIENT:
+	    {
+	    	int sobel_x[3][3] =
+	    	{
+	    		{ 1, 0, -1 },
+	    		{ 2, 0, -2 },
+	    		{ 1, 0, -1 }
+	    	};
+	    	int Gx = 0, Gy = 0;
+	    	for (int i = -1; i <= 1; i++)
+	    	{
+	    		for (int j = -1; j <= 1; j++)
+	    		{
+	    			GLubyte* pixel = pDoc->GetOriginalPixel(source.x + i, source.y + j);
+	    			// formula from tutorial doc page 19
+	    			int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+	    			Gx += sobel_x[i + 1][j + 1] * pixelValue;
+	    			Gy += sobel_x[j + 1][i + 1] * pixelValue;
+	    		}
+	    	}
+	    	angle = atan2(Gx, Gy) / M_PI / 2.0 * 360; // prependicular to gradient
+	    	break;
+	    }
+	    case ANOTHER_GRADIENT:
+	    {
+	    	int sobel_x[3][3] =
+	    	{
+	    		{ 1, 0, -1 },
+	    		{ 2, 0, -2 },
+	    		{ 1, 0, -1 }
+	    	};
+	    	int Gx = 0, Gy = 0;
+	    	for (int i = -1; i <= 1; i++)
+	    	{
+	    		for (int j = -1; j <= 1; j++)
+	    		{
+	    			GLubyte* pixel = pDoc->m_anotherBitmap + 3 * ((source.y + j) * pDoc->m_nWidth + source.x + i);
+	    			// formula from tutorial doc page 19
+	    			int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+	    			Gx += sobel_x[i + 1][j + 1] * pixelValue;
+	    			Gy += sobel_x[j + 1][i + 1] * pixelValue;
+	    		}
+	    	}
+	    	angle = atan2(Gx, Gy) / M_PI / 2.0 * 360; // prependicular to gradient
+	    	break;
+	    }
 	}
 	double rad = angle / 360.0 * 2 * M_PI;
 	double x_length = size * cos(rad);

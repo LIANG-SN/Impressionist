@@ -30,6 +30,9 @@ ImpressionistDoc::ImpressionistDoc()
 	m_nWidth		= -1;
 	m_ucBitmap		= NULL;
 	m_ucPainting	= NULL;
+	m_anotherBitmap = NULL;
+	m_edgeBitmap = NULL;
+	m_ucPainting_prev = NULL;
 
 
 	// create one instance of each brush
@@ -161,8 +164,57 @@ int ImpressionistDoc::loadImage(char *iname)
 
 	return 1;
 }
+int ImpressionistDoc::loadAnotherImage(char* iname)
+{
+
+	// try to open the image to read
+	unsigned char* data;
+	int				width, height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("Can't load. Image size must be same!");
+		delete[] data;
+		return 0;
+	}
 
 
+	// release old storage
+	if (m_anotherBitmap) delete[] m_anotherBitmap;
+	m_anotherBitmap = data;
+
+	return 1;
+}
+int ImpressionistDoc::loadEdgeImage(char* iname)
+{
+
+	// try to open the image to read
+	unsigned char* data;
+	int				width, height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("Can't load. Image size must be same!");
+		delete[] data;
+		return 0;
+	}
+
+	// release old storage
+	if (m_edgeBitmap) delete[] m_edgeBitmap;
+	m_edgeBitmap = data;
+
+	return 1;
+}
 //----------------------------------------------------------------
 // Save the specified image
 // This is called by the UI when the save image menu button is 
@@ -189,12 +241,14 @@ int ImpressionistDoc::dissolve_image(char* iname)
 	if (!m_ucBitmap)
 	{
 		fl_alert("Load an origin image first");
+		delete[] data;
 		return 0;
 	}
 	// only can dissolve image with smaller or equal size
 	if (width > m_nWidth || height > m_nHeight)
 	{
 		fl_alert("The loaded file is larger than the origin, choose a smaller one.");
+		delete[] data;
 		return 0;
 	}
 

@@ -64,8 +64,18 @@ void OriginalView::draw()
 		if ( startrow < 0 ) 
 			startrow = 0;
 
-
-		bitstart = m_pDoc->m_ucBitmap + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
+		switch (imageShow)
+		{
+		    case SHOW_ORIGIN_IMAGE:
+			    bitstart = m_pDoc->m_ucBitmap + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
+				break;
+			case SHOW_ANOTHER_IMAGE:
+				bitstart = m_pDoc->m_anotherBitmap + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
+				break;
+			case SHOW_EDGE_IMAGE:
+				bitstart = m_pDoc->m_edgeBitmap + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
+				break;
+		}
 
 		// just copy image to GLwindow conceptually
 		glRasterPos2i( 0, m_nWindowHeight - drawHeight );
