@@ -175,7 +175,51 @@ int ImpressionistDoc::saveImage(char *iname)
 
 	return 1;
 }
+int ImpressionistDoc::dissolve_image(char* iname)
+{
+	// try to open the image to read
+	unsigned char* data;
+	int				width, height;
 
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (!m_ucBitmap)
+	{
+		fl_alert("Load an origin image first");
+		return 0;
+	}
+	// only can dissolve image with smaller or equal size
+	if (width > m_nWidth || height > m_nHeight)
+	{
+		fl_alert("The loaded file is larger than the origin, choose a smaller one.");
+		return 0;
+	}
+
+	// merge data
+	for (int i = 0; i < m_nHeight; i++)
+	{
+		for (int j = 0; j < m_nWidth; j++)
+		{
+			if (i < height && j < width)
+			{
+				for (int t = 0; t < 3; t++)
+				{
+					*(m_ucBitmap + 3 * (i * m_nWidth + j) + t) *= 0.5;
+					*(m_ucBitmap + 3 * (i * m_nWidth + j) + t) += *(data + 3 * (i * width + j) + t) * 0.5;
+				
+				}
+			}
+		}
+	}
+
+	// display it on origView
+	m_pUI->m_origView->refresh();
+
+	return 1;
+}
 //----------------------------------------------------------------
 // Clear the drawing canvas
 // This is called by the UI when the clear canvas menu item is 

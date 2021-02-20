@@ -35,6 +35,8 @@ public:
 	void		setLineDirectionChoice(int choice); // set the line direction choice to brush
 	void    confirmLastModify();
 	void	undo();
+	int    dissolve_image(char* iname);
+
 // Attributes
 public:
 	// Dimensions of original window.

@@ -182,7 +182,15 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
 		pDoc->loadImage(newfile);
 	}
 }
+void ImpressionistUI::cb_load_dissolve_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
 
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->dissolve_image(newfile);
+	}
+}
 
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
@@ -389,7 +397,8 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image },
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushes },
 		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
-	    { "Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
+	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
+		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
 		{ 0 },
