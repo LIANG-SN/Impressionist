@@ -43,6 +43,8 @@ public:
 	Fl_Slider* m_lineWidthSlider;
 	Fl_Slider* m_lineAngleSlider;
 	Fl_Choice* m_lineDirectionChoice;
+
+	Fl_Check_Button* m_EdgeClipButton;
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
 	ImpressionistDoc* getDocument();
@@ -60,7 +62,7 @@ public:
 	void 				setLineAngle(int angle);
 	double				getAlpha() { return alpha; }
 	void				setAlpha(double alpha) { this->alpha = alpha; }
-
+	bool				getEdgeClipping() { return m_edgeClipping; }
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
 
@@ -69,6 +71,7 @@ private:
 	int		m_lineWidth{ 1 };
 	int		m_lineAngle{ 0 };
 	double  alpha{ 1 };
+	bool    m_edgeClipping{ 1 };
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -99,6 +102,7 @@ private:
 	static void cb_undo(Fl_Menu_* o, void* v);
 	static void cb_auto_paint(Fl_Menu_* o, void* v);
 	static void cb_show_image_choice(Fl_Menu_* o, void* v);
+	static void	cb_edge_clip(Fl_Widget* o, void* v);
 };
 
 #endif

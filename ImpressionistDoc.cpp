@@ -112,6 +112,12 @@ void ImpressionistDoc::undo()
 	// m_pUI->m_paintView->RestoreContent();
 	m_pUI->m_paintView->refresh();
 }
+bool ImpressionistDoc::isEdge(int x, int y)
+{
+	if (x < 0 || x > m_nWidth || y < 0 || y > m_nHeight || !m_edgeBitmap)
+		return 0;
+	return (*(m_edgeBitmap + 3 * (y * m_nWidth + x)) == 255);
+}
 //---------------------------------------------------------
 // Load the specified image
 // This is called by the UI when the load image button is 

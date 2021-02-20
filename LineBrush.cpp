@@ -98,12 +98,48 @@ void LineBrush::BrushMove(const Point source, const Point target)
 	double rad = angle / 360.0 * 2 * M_PI;
 	double x_length = size * cos(rad);
 	double y_length = size * sin(rad);
-	glBegin(GL_LINES);
-	SetColor(source); // set color of source(original paint) to gl
-	glVertex2d(target.x - x_length / 2, target.y - y_length / 2);
-	glVertex2d(target.x + x_length / 2, target.y + y_length / 2);
+	if (!pDoc->m_pUI->getEdgeClipping())
+	{
+		glBegin(GL_LINES);
+		SetColor(source); // set color of source(original paint) to gl
+		glVertex2d(target.x - x_length / 2, target.y - y_length / 2);
+		glVertex2d(target.x + x_length / 2, target.y + y_length / 2);
 
-	glEnd();
+		glEnd();
+	}
+	else
+	{
+		int x1, x2, y1, y2;
+		for (int i = 0; i > -size/2; i--)
+		{
+			if (pDoc->isEdge(source.x + i * cos(rad), source.y + i * sin(rad)))
+			{
+				x1 = source.x + i * cos(rad);
+				y1 = source.y + i * sin(rad);
+				break;
+			}
+			x1 = target.x - x_length / 2;
+			y1 = target.y - y_length / 2;
+		}
+		for (int i = 0; i < size / 2; i++)
+		{
+			if (pDoc->isEdge(source.x + i * cos(rad), source.y + i * sin(rad)))
+			{
+				x2 = source.x + i * cos(rad);
+				y2 = source.y + i * sin(rad);
+				break;
+			}
+			x2 = target.x + x_length / 2;
+			y2 = target.y + y_length / 2;
+		}
+
+		glBegin(GL_LINES);
+		SetColor(source); // set color of source(original paint) to gl
+		glVertex2d(x1, y1);
+		glVertex2d(x2, y2);
+
+		glEnd();
+	}
 }
 
 void LineBrush::BrushEnd(const Point source, const Point target)

@@ -38,6 +38,7 @@ public:
 	void    confirmLastModify();
 	void	undo();
 	int    dissolve_image(char* iname);
+	bool   isEdge(const int x, const int y);
 
 // Attributes
 public:

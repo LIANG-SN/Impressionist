@@ -355,6 +355,10 @@ void ImpressionistUI::cb_show_image_choice(Fl_Menu_* o, void* v)
 	int choice = (int)v;
 	whoami(o)->m_origView->showImageChoice(choice);
 }
+void ImpressionistUI::cb_edge_clip(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_edgeClipping = bool(((Fl_Check_Button*)o)->value());
+}
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -570,6 +574,13 @@ ImpressionistUI::ImpressionistUI() {
 	m_lineWidthSlider->value(alpha);
 	m_lineWidthSlider->align(FL_ALIGN_RIGHT);
 	m_lineWidthSlider->callback(cb_alphaSlides);
-	m_brushDialog->end();
 
+	// add edge clipping checkbox
+	m_EdgeClipButton = new Fl_Check_Button(10, 210, 150, 25, "Edge Clip");
+	m_EdgeClipButton->value(m_edgeClipping);
+	m_EdgeClipButton->user_data((void*)(this));
+	m_EdgeClipButton->callback(cb_edge_clip);
+
+	
+	m_brushDialog->end();
 }
