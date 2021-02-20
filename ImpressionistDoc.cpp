@@ -101,6 +101,13 @@ int ImpressionistDoc::getLineWidth() { return m_pUI->getLineWidth(); }
 int ImpressionistDoc::getLineAngle() { return m_pUI->getLineAngle(); }
 void ImpressionistDoc::setLineAngle(double angle) { m_pUI->setLineAngle(angle); }
 double ImpressionistDoc::getAlpha() { return m_pUI->getAlpha(); }
+double ImpressionistDoc::getRed(){ return m_pUI->getRed(); }
+double ImpressionistDoc::getGreen(){ return m_pUI->getGreen(); }
+double ImpressionistDoc::getBlue(){ return m_pUI->getBlue(); }
+
+
+
+
 void ImpressionistDoc::confirmLastModify()
 {
 	memcpy(m_ucPainting_prev, m_ucPainting, m_nWidth * m_nHeight * 3);

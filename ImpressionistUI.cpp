@@ -326,6 +326,25 @@ void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
 {
 	whoami(o)->getDocument()->undo();
 }
+
+void ImpressionistUI::cb_colorChooserWindow(Fl_Menu_* o, void* v) {
+	whoami(o)->m_ColorChooseWindow->show();
+}
+
+void ImpressionistUI::cb_colorChooser(Fl_Widget* o, void* v){
+	((ImpressionistUI*)(o->user_data()))->colors[0] = ((Fl_Color_Chooser*)o)->r();
+	((ImpressionistUI*)(o->user_data()))->colors[1] = ((Fl_Color_Chooser*)o)->g();
+	((ImpressionistUI*)(o->user_data()))->colors[2] = ((Fl_Color_Chooser*)o)->b();
+}
+
+
+
+
+
+
+
+
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -400,6 +419,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
 		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
+		{ "&Colors...", FL_ALT + 'w', (Fl_Callback*)ImpressionistUI::cb_colorChooserWindow, 0, FL_MENU_DIVIDER },
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
 		{ 0 },
 
@@ -531,6 +551,19 @@ ImpressionistUI::ImpressionistUI() {
 	m_lineWidthSlider->value(alpha);
 	m_lineWidthSlider->align(FL_ALIGN_RIGHT);
 	m_lineWidthSlider->callback(cb_alphaSlides);
+
 	m_brushDialog->end();
 
+	// add color chooser
+	m_ColorChooseWindow = new Fl_Window(230, 230, "Color Chooser");
+	m_ColorChooseWindow->user_data((void*)(this));
+
+	m_ColorChooser = new Fl_Color_Chooser(10, 10, 200, 200);
+	m_ColorChooser->user_data((void*)(this));
+	m_ColorChooser->rgb(1.0, 1.0, 1.0);
+	m_ColorChooser->mode(0);
+	m_ColorChooser->callback(cb_colorChooser);
+	m_ColorChooser->end();
+
+	m_ColorChooseWindow->end();
 }
