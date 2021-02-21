@@ -71,7 +71,11 @@ void PaintView::draw()
 	int startrow = m_pDoc->m_nPaintHeight - (scrollpos.y + drawHeight);
 	if (startrow < 0) startrow = 0;
 
-	m_pPaintBitstart = m_pDoc->m_ucPainting +
+
+	m_pDoc->generateFadedBackground();
+	m_pDoc->generatemCompositeBitmap();
+
+	m_pShowBitstart = m_pDoc->m_compositeBitmap +
 		3 * ((m_pDoc->m_nPaintWidth * startrow) + scrollpos.x);
 
 	m_nDrawWidth = drawWidth;
@@ -85,6 +89,7 @@ void PaintView::draw()
 	// toread
 	if (m_pDoc->m_ucPainting && !isAnEvent)
 	{
+
 		RestoreContent(); // toread
 
 	}
@@ -94,6 +99,8 @@ void PaintView::draw()
 
 		// Clear it after processing.
 		isAnEvent = 0;
+
+
 
 		Point source(coord.x + m_nStartCol, m_nEndRow - coord.y);//original view
 		Point target(coord.x, m_nWindowHeight - coord.y);// paint view
@@ -272,14 +279,38 @@ void PaintView::SaveCurrentContent()
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ROW_LENGTH, m_pDoc->m_nPaintWidth);
-	// read from front buffer to m_pPaintBitstart(m_ucPainting)
+	// read from front buffer to m_pShowBitstart
 	glReadPixels(0,
 		m_nWindowHeight - m_nDrawHeight,
 		m_nDrawWidth,
 		m_nDrawHeight,
 		GL_RGB,
 		GL_UNSIGNED_BYTE,
-		m_pPaintBitstart);
+		m_pShowBitstart);
+
+	// store your painting
+	int width = m_pDoc->m_nWidth;
+	int height = m_pDoc->m_nHeight;
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			int hasPainted = 0;
+			for (int t = 0; t < 3; t++)
+			{
+				if (*(m_pDoc->m_compositeBitmap + 3 * (i * width + j) + t) != *(m_pDoc->m_fadedBackgroundBitmap + 3 * (i * width + j) + t)) {
+					hasPainted = 1;
+					break;
+				}
+
+			}
+
+			for (int t = 0; t < 3; t++)
+			{
+				*(m_pDoc->m_ucPainting + 3 * (i * width + j) + t) =  *(m_pDoc->m_compositeBitmap + 3 * (i * width + j) + t) * hasPainted;
+			}
+		}
+	}
 }
 
 
@@ -292,14 +323,14 @@ void PaintView::RestoreContent()
 	glRasterPos2i(0, m_nWindowHeight - m_nDrawHeight);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, m_pDoc->m_nPaintWidth);
-	// write data from m_pPaintBitstart(m_ucPainting) to frame buffer
+
 	glDrawPixels(m_nDrawWidth,
 		m_nDrawHeight,
 		GL_RGB,
 		GL_UNSIGNED_BYTE,
-		m_pPaintBitstart);
+		m_pShowBitstart);
 
-	//	glDrawBuffer(GL_FRONT);
+	glDrawBuffer(GL_FRONT);
 }
 
 

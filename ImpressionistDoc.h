@@ -28,6 +28,9 @@ public:
 
 	void	generateEdgeImage();
 
+	void	generateFadedBackground();
+	void	generatemCompositeBitmap();
+
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
 	void	setBrushType(int type);			// called by the UI to set the brushType
 	int		getSize();						// get the UI size: brush size
@@ -46,8 +49,8 @@ public:
 	void    setBlurSharpBrushChoice(int choice);
 	void    confirmLastModify();
 	void	undo();
-	int    dissolve_image(char* iname);
-	bool   isEdge(const int x, const int y);
+	int     dissolve_image(char* iname);
+	bool    isEdge(const int x, const int y);
 	void	getGradientOfPoint(const int x, const int y, int& Gx, int& Gy);
 
 // Attributes
@@ -64,6 +67,8 @@ public:
 	unsigned char*  m_ucPainting_prev; // prev bitmap for undo
 	unsigned char*  m_anotherBitmap;
 	unsigned char*  m_edgeBitmap;
+	unsigned char*  m_fadedBackgroundBitmap;
+	unsigned char*  m_compositeBitmap;
 	// The current active brush.
 	ImpBrush*		m_pCurrentBrush;
 

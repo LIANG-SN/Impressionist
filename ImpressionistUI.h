@@ -34,6 +34,9 @@ public:
 	PaintView* m_paintView;
 	OriginalView* m_origView;
 
+	Fl_Window* m_fadedBackgroundWindow;
+	Fl_Slider* m_fadeInSlider;
+
 	// for brush dialog
 	Fl_Window* m_brushDialog;
 	Fl_Choice* m_BrushTypeChoice;
@@ -52,7 +55,7 @@ public:
 
 	Fl_Choice* m_BlurSharpTypeChooser;
 	Fl_Slider* m_BlurSharpLevelSlider;
-	Fl_Slider* m_SharpThreshold;
+	Fl_Slider* m_SharpThresholdSlider;
 	Fl_Button* m_DrawEdgeButton;
 
 
@@ -79,6 +82,7 @@ public:
 	double				getBlue() { return colors[2]; };
 	int					getLevel() { return level; };
 	int					getThreshold() { return threshold; };
+	double				getFadedRate() { return fadedRate; };
 
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
@@ -92,6 +96,7 @@ private:
 	double	colors[3]{ 1.0,1.0,1.0 };
 	int		level{ 1 };
 	int		threshold{ 100 };
+	double  fadedRate{ 0.00 };
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -109,6 +114,8 @@ private:
 	static void cb_new_mural_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_dissolve_image(Fl_Menu_* o, void* v);
+	static void cb_faded_background_window(Fl_Menu_* o, void* v);
+	static void cb_faded_slider(Fl_Widget* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
 	static void	cb_clear_canvas(Fl_Menu_* o, void* v);
 	static void	cb_exit(Fl_Menu_* o, void* v);

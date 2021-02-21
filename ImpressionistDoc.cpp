@@ -36,6 +36,8 @@ ImpressionistDoc::ImpressionistDoc()
 	m_anotherBitmap = NULL;
 	m_edgeBitmap = NULL;
 	m_ucPainting_prev = NULL;
+	m_fadedBackgroundBitmap = NULL;
+	m_compositeBitmap = NULL;
 
 	// create one instance of each brush
 	ImpBrush::c_nBrushCount	= NUM_BRUSH_TYPE;
@@ -330,13 +332,62 @@ void ImpressionistDoc::generateEdgeImage()
 
 }
 
-int ImpressionistDoc::saveImage(char *iname) 
+void ImpressionistDoc::generateFadedBackground()
+{
+	if (!m_ucBitmap) return;
+	if (m_fadedBackgroundBitmap) delete[] m_fadedBackgroundBitmap;
+	m_fadedBackgroundBitmap= new unsigned char[m_nHeight* m_nWidth*3];
+	for (int i = 0; i < m_nHeight; i++)
+	{
+		for (int j = 0; j < m_nWidth; j++)
+		{
+			for (int t = 0; t < 3; t++)
+			{
+				*(m_fadedBackgroundBitmap + 3 * (i * m_nWidth + j) + t) = 0;
+				*(m_fadedBackgroundBitmap + 3 * (i * m_nWidth + j) + t) += *(m_ucBitmap + 3 * (i * m_nWidth + j) + t) * m_pUI->getFadedRate();
+			}
+		}
+	}
+}
+
+void ImpressionistDoc::generatemCompositeBitmap()
+{
+	if (!m_ucPainting) return;
+
+	if (m_compositeBitmap) delete[] m_compositeBitmap;
+	m_compositeBitmap = new unsigned char[m_nHeight * m_nWidth * 3];
+
+	for (int i = 0; i < m_nHeight; i++)
+	{
+		for (int j = 0; j < m_nWidth; j++)
+		{
+			int hasPainted = 0;
+			for (int t = 0; t < 3; t++)
+			{
+				if (*(m_ucPainting + 3 * (i * m_nWidth + j) + t) != 0) {
+					hasPainted = 1;
+					break;
+				}
+
+			}
+
+			for (int t = 0; t < 3; t++)
+			{
+				*(m_compositeBitmap + 3 * (i * m_nWidth + j) + t) = *(m_fadedBackgroundBitmap + 3 * (i * m_nWidth + j) + t) * (1-hasPainted) + *(m_ucPainting + 3 * (i * m_nWidth + j) + t) * hasPainted;
+			}
+		}
+	}
+}
+
+
+int ImpressionistDoc::saveImage(char *iname)
 {
 
 	writeBMP(iname, m_nPaintWidth, m_nPaintHeight, m_ucPainting);
 
 	return 1;
 }
+
 int ImpressionistDoc::dissolve_image(char* iname)
 {
 	// try to open the image to read

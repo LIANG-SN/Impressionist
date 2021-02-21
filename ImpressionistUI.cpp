@@ -220,6 +220,25 @@ void ImpressionistUI::cb_load_dissolve_image(Fl_Menu_* o, void* v)
 	}
 }
 
+
+void ImpressionistUI::cb_faded_background_window(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_fadedBackgroundWindow->show();
+}
+
+void ImpressionistUI::cb_faded_slider(Fl_Widget* o, void* v)
+{
+	
+
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+
+	pUI->fadedRate = double(((Fl_Slider*)o)->value());
+
+	pDoc->generateFadedBackground();
+	pDoc->generatemCompositeBitmap();
+	pUI->m_paintView->refresh();
+}
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
 // This is called by the UI when the save image menu item is chosen
@@ -488,7 +507,8 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
 	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
 		{"New Mural Image", NULL, (Fl_Callback*)ImpressionistUI::cb_new_mural_image},
-		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
+		{"&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
+		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
 		// devide
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
@@ -666,18 +686,19 @@ ImpressionistUI::ImpressionistUI() {
 	m_BlurSharpLevelSlider->align(FL_ALIGN_RIGHT);
 	m_BlurSharpLevelSlider->callback(cb_levelSlider);
 
-	m_SharpThreshold = new Fl_Value_Slider(10, 260, 180, 20, "Edge Threshold");
-	m_SharpThreshold->user_data((void*)(this));	// record self to be used by static callback functions
-	m_SharpThreshold->type(FL_HOR_NICE_SLIDER);
-	m_SharpThreshold->labelfont(FL_COURIER);
-	m_SharpThreshold->labelsize(12);
-	m_SharpThreshold->minimum(0);
-	m_SharpThreshold->maximum(500);
-	m_SharpThreshold->value(100);
-	m_SharpThreshold->step(1);
-	m_SharpThreshold->value(threshold);
-	m_SharpThreshold->align(FL_ALIGN_RIGHT);
-	m_SharpThreshold->callback(cb_edgeThresholdSlider);
+	// add edge detecting function
+	m_SharpThresholdSlider = new Fl_Value_Slider(10, 260, 180, 20, "Edge Threshold");
+	m_SharpThresholdSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_SharpThresholdSlider->type(FL_HOR_NICE_SLIDER);
+	m_SharpThresholdSlider->labelfont(FL_COURIER);
+	m_SharpThresholdSlider->labelsize(12);
+	m_SharpThresholdSlider->minimum(0);
+	m_SharpThresholdSlider->maximum(500);
+	m_SharpThresholdSlider->value(100);
+	m_SharpThresholdSlider->step(1);
+	m_SharpThresholdSlider->value(threshold);
+	m_SharpThresholdSlider->align(FL_ALIGN_RIGHT);
+	m_SharpThresholdSlider->callback(cb_edgeThresholdSlider);
 
 	m_DrawEdgeButton = new Fl_Button(300, 260, 80, 20, "&Do it");
 	m_DrawEdgeButton->user_data((void*)(this));
@@ -699,4 +720,24 @@ ImpressionistUI::ImpressionistUI() {
 	m_ColorChooser->end();
 
 	m_ColorChooseWindow->end();
+
+	// add faded background window
+	m_fadedBackgroundWindow = new Fl_Window(260, 40, "Faded Background");
+	m_fadedBackgroundWindow->user_data((void*)(this));
+
+
+	m_fadeInSlider = new Fl_Value_Slider(10, 10, 180, 20, "Faded In");
+	m_fadeInSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_fadeInSlider->type(FL_HOR_NICE_SLIDER);
+	m_fadeInSlider->labelfont(FL_COURIER);
+	m_fadeInSlider->labelsize(12);
+	m_fadeInSlider->minimum(0.00);
+	m_fadeInSlider->maximum(1.00);
+	m_fadeInSlider->value(0.00);
+	m_fadeInSlider->step(0.01);
+	m_fadeInSlider->value(fadedRate);
+	m_fadeInSlider->align(FL_ALIGN_RIGHT);
+	m_fadeInSlider->callback(cb_faded_slider);
+
+	m_fadedBackgroundWindow->end();
 }

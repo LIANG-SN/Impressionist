@@ -43,11 +43,11 @@ unsigned char* readBMP(char*	fname,
 	}
 	if ( bmih.biBitCount != 24 )  
 		return NULL; 
-/*
+
  	if ( bmih.biCompression != BMP_BI_RGB ) {
 		return NULL;
 	}
-*/
+
 	fseek( file, pos, SEEK_SET ); 
  
 	width = bmih.biWidth; 
@@ -159,4 +159,65 @@ void writeBMP(char*				iname,
 	delete [] scanline;
 
 	fclose(outFile);
-} 
+}
+
+
+void write_RGBA_BMP(char* iname,
+	int				width,
+	int				height,
+	unsigned char* data)
+{
+	int bytes, pad;
+	bytes = width * 4;
+	pad = (bytes % 4) ? 4 - (bytes % 4) : 0;
+	bytes += pad;
+	bytes *= height;
+
+	bmfh.bfType = 0x4d42;    // "BM"
+	bmfh.bfSize = sizeof(BMP_BITMAPFILEHEADER) + sizeof(BMP_BITMAPINFOHEADER) + bytes;
+	bmfh.bfReserved1 = 0;
+	bmfh.bfReserved2 = 0;
+	bmfh.bfOffBits = /*hack sizeof(BMP_BITMAPFILEHEADER)=14, sizeof doesn't work?*/
+		14 + sizeof(BMP_BITMAPINFOHEADER);
+
+	bmih.biSize = sizeof(BMP_BITMAPINFOHEADER);
+	bmih.biWidth = width;
+	bmih.biHeight = height;
+	bmih.biPlanes = 1;
+	bmih.biBitCount = 32;
+	bmih.biCompression = BMP_BI_ALPHABITFIELDS;
+	bmih.biSizeImage = bytes;
+	bmih.biXPelsPerMeter = (int)(100 / 2.54 * 72);
+	bmih.biYPelsPerMeter = (int)(100 / 2.54 * 72);
+	bmih.biClrUsed = 0;
+	bmih.biClrImportant = 0;
+
+	FILE* outFile = fopen(iname, "wb");
+
+	//	fwrite(&bmfh, sizeof(BMP_BITMAPFILEHEADER), 1, outFile);
+	fwrite(&(bmfh.bfType), 2, 1, outFile);
+	fwrite(&(bmfh.bfSize), 4, 1, outFile);
+	fwrite(&(bmfh.bfReserved1), 2, 1, outFile);
+	fwrite(&(bmfh.bfReserved2), 2, 1, outFile);
+	fwrite(&(bmfh.bfOffBits), 4, 1, outFile);
+
+	fwrite(&bmih, sizeof(BMP_BITMAPINFOHEADER), 1, outFile);
+
+	bytes /= height;
+	unsigned char* scanline = new unsigned char[bytes];
+	for (int j = 0; j < height; ++j)
+	{
+		memcpy(scanline, data + j * 3 * width, bytes-width);
+		for (int i = 0; i < width; ++i)
+		{
+			unsigned char temp = scanline[i * 4];
+			scanline[i * 4] = scanline[i * 3 + 2];
+			scanline[i * 3 + 2] = temp;
+		}
+		fwrite(scanline, bytes, 1, outFile);
+	}
+
+	delete[] scanline;
+
+	fclose(outFile);
+}
