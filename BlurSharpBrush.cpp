@@ -59,14 +59,14 @@ void BlurSharpBrush::BlurMove(const Point source, const Point target)
 	
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
-			int x = source.x - size / 2 + i - filter_size / 2;
-			int y = source.y - size / 2 + j - filter_size / 2;
+			int x = source.x - size / 2 + i - (filter_size + 1) / 2;
+			int y = source.y - size / 2 + j - (filter_size + 1) / 2;
 			double sum[3] = { 0.0,0.0,0.0 };
 			int count = 0;
 
 			for (int k = 0; k < filter_size; k++) {
 				for (int w = 0; w < filter_size; w++) {
-					GLubyte temp[3];
+					unsigned char temp[3];
 					memcpy(temp, pDoc->GetOriginalPixel(Point(x + k, y + w)), 3);
 					sum[0] += temp[0]/255.0;
 					sum[1] += temp[1]/255.0;
@@ -99,43 +99,48 @@ void BlurSharpBrush::SharpenMove(const Point source, const Point target)
 {
 	ImpressionistDoc* pDoc = GetDocument();
 	ImpressionistUI* dlg = pDoc->m_pUI;
-	int strength = pDoc->getLevel();
+	int filter_size = pDoc->getLevel() * 2 - 1;
 	int size = pDoc->getSize();
 
 
 
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
-			int Gx = 0, Gy = 0;
-			int x = source.x - size / 2 + i;
-			int y = source.y - size / 2 + j;
-			pDoc->getGradientOfPoint(x, y, Gx, Gy);
 
-			GLubyte temp[4];
-			memcpy(temp, pDoc->GetOriginalPixel(x, y), 3);
-			temp[3] = GLubyte(255 * pDoc->getAlpha());
+			int x = source.x - size / 2 + i - (filter_size + 1) / 2;
+			int y = source.y - size / 2 + j - (filter_size + 1) / 2;
+			double sum[3] = { 0.0,0.0,0.0 };
+			int count = 0;
 
-			if (Gx > 100 || Gy > 100) {
-				double h, s, v;
-				double temp2[4];
-
-				dlg->m_ColorChooser->rgb2hsv(temp[0] / 255, temp[1] / 255, temp[2] / 255, h, s, v);
-				v += strength * 5 / 255;
-				v = ((int)(v * 255) % 255) / 255;
-				dlg->m_ColorChooser->rgb2hsv(h, s, v, temp2[0], temp2[1], temp2[2]);
-
-				GLubyte colors[4];
-				colors[0] = temp2[0] * pDoc->getRed();
-				colors[1] = temp2[1] * pDoc->getGreen();
-				colors[2] = temp2[2] * pDoc->getBlue();
-				colors[3] = GLubyte(255 * pDoc->getAlpha());
-				glColor4ubv(colors);
+			for (int k = 0; k < filter_size; k++) {
+				for (int w = 0; w < filter_size; w++) {
+					unsigned char temp[3];
+					memcpy(temp, pDoc->GetOriginalPixel(Point(x + k, y + w)), 3);
+					sum[0] += temp[0] / 255.0;
+					sum[1] += temp[1] / 255.0;
+					sum[2] += temp[2] / 255.0;
+					count++;
+				}
 			}
-			else
-				glColor4ubv(temp);
 
 			glBegin(GL_POINTS);
+
+			GLubyte colors[4];
+			unsigned char origin[3];
+			memcpy(origin, pDoc->GetOriginalPixel(x,y), 3);
+			for (int i = 0; i < 3; i++) {
+				int temp = origin[i] * 2 - sum[i] / count * 255;
+				if (temp > 255)
+					colors[i] = GLubyte(255);
+				else
+					colors[i] = GLubyte(origin[i]);
+			}
+			colors[0] = colors[0] * pDoc->getRed();
+			colors[1] = colors[1] * pDoc->getGreen();
+			colors[2] = colors[2] * pDoc->getBlue();
+			glColor4ubv(colors);
 			glVertex2d(target.x - size / 2 + i, target.y - size / 2 + j);
+
 			glEnd();
 		}
 	}
