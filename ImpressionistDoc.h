@@ -34,7 +34,10 @@ public:
 	int		getLineAngle();
 	void    setLineAngle(double angle);
 	double  getAlpha();
-	void		setLineDirectionChoice(int choice); // set the line direction choice to brush
+	double	getRed();
+	double	getGreen();
+	double	getBlue();
+	void	setLineDirectionChoice(int choice); // set the line direction choice to brush
 	void    confirmLastModify();
 	void	undo();
 	int    dissolve_image(char* iname);

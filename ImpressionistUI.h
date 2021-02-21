@@ -15,6 +15,7 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Light_Button.H>
+#include <FL/Fl_Color_Chooser.H>
 
 #include "Impressionist.h"
 #include "OriginalView.h"
@@ -45,6 +46,10 @@ public:
 	Fl_Choice* m_lineDirectionChoice;
 
 	Fl_Check_Button* m_EdgeClipButton;
+	Fl_Window* m_ColorChooseWindow;
+	Fl_Color_Chooser* m_ColorChooser;
+
+
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
 	ImpressionistDoc* getDocument();
@@ -63,6 +68,10 @@ public:
 	double				getAlpha() { return alpha; }
 	void				setAlpha(double alpha) { this->alpha = alpha; }
 	bool				getEdgeClipping() { return m_edgeClipping; }
+	double				getRed() { return colors[0]; };
+	double				getGreen() { return colors[1]; };
+	double				getBlue() { return colors[2]; };
+
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
 
@@ -72,6 +81,7 @@ private:
 	int		m_lineAngle{ 0 };
 	double  alpha{ 1 };
 	bool    m_edgeClipping{ 1 };
+	double	colors[3]{ 1.0,1.0,1.0 };
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -103,6 +113,8 @@ private:
 	static void cb_auto_paint(Fl_Menu_* o, void* v);
 	static void cb_show_image_choice(Fl_Menu_* o, void* v);
 	static void	cb_edge_clip(Fl_Widget* o, void* v);
+	static void cb_colorChooserWindow(Fl_Menu_* o, void* v);
+	static void cb_colorChooser(Fl_Widget* o, void* v);
 };
 
 #endif

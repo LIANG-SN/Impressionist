@@ -344,6 +344,7 @@ void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
 {
 	whoami(o)->getDocument()->undo();
 }
+
 void ImpressionistUI::cb_auto_paint(Fl_Menu_* o, void* v)
 {
 	whoami(o)->m_paintView->setEventType(AUTO_PAINT);
@@ -359,6 +360,18 @@ void ImpressionistUI::cb_edge_clip(Fl_Widget* o, void* v)
 {
 	((ImpressionistUI*)(o->user_data()))->m_edgeClipping = bool(((Fl_Check_Button*)o)->value());
 }
+
+void ImpressionistUI::cb_colorChooserWindow(Fl_Menu_* o, void* v) {
+	whoami(o)->m_ColorChooseWindow->show();
+}
+
+void ImpressionistUI::cb_colorChooser(Fl_Widget* o, void* v){
+	((ImpressionistUI*)(o->user_data()))->colors[0] = ((Fl_Color_Chooser*)o)->r();
+	((ImpressionistUI*)(o->user_data()))->colors[1] = ((Fl_Color_Chooser*)o)->g();
+	((ImpressionistUI*)(o->user_data()))->colors[2] = ((Fl_Color_Chooser*)o)->b();
+}
+
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -428,7 +441,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
 		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
-	{"loed Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
+	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
 		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
 		// devide
@@ -441,6 +454,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	    {0},
 	{"Functions", 0, 0, 0, FL_SUBMENU},
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushes },
+		{ "&Colors...", FL_ALT + 'w', (Fl_Callback*)ImpressionistUI::cb_colorChooserWindow, 0, FL_MENU_DIVIDER },
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas},
 		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
 		{ "Auto paint", NULL, (Fl_Callback*)ImpressionistUI::cb_auto_paint},
@@ -461,6 +475,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
   {"Scattered Points",	FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_POINTS},
   {"Scattered Lines",	FL_ALT + 'm', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_LINES},
   {"Scattered Circles",	FL_ALT + 'd', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_CIRCLES},
+  {"Pentagram",			FL_ALT + 'z', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_PENTAGRAM},
   {0}
 };
 
@@ -580,7 +595,19 @@ ImpressionistUI::ImpressionistUI() {
 	m_EdgeClipButton->value(m_edgeClipping);
 	m_EdgeClipButton->user_data((void*)(this));
 	m_EdgeClipButton->callback(cb_edge_clip);
-
 	
 	m_brushDialog->end();
+
+	// add color chooser
+	m_ColorChooseWindow = new Fl_Window(230, 230, "Color Chooser");
+	m_ColorChooseWindow->user_data((void*)(this));
+
+	m_ColorChooser = new Fl_Color_Chooser(10, 10, 200, 200);
+	m_ColorChooser->user_data((void*)(this));
+	m_ColorChooser->rgb(1.0, 1.0, 1.0);
+	m_ColorChooser->mode(0);
+	m_ColorChooser->callback(cb_colorChooser);
+	m_ColorChooser->end();
+
+	m_ColorChooseWindow->end();
 }

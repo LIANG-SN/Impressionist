@@ -19,6 +19,7 @@
 #include "CircleBrush.h"
 #include "ScatteredCircleBrush.h"
 #include "ScatteredLineBrush.h"
+#include "PentagramBrush.h"
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
@@ -52,6 +53,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new ScatteredLineBrush( this, "Scattered Lines" );
 	ImpBrush::c_pBrushes[BRUSH_SCATTERED_CIRCLES]	
 		= new ScatteredCircleBrush( this, "Scattered Circles" );
+	ImpBrush::c_pBrushes[BRUSH_PENTAGRAM]
+		= new PentagramBrush(this, "Pentagram");
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
@@ -101,6 +104,13 @@ int ImpressionistDoc::getLineWidth() { return m_pUI->getLineWidth(); }
 int ImpressionistDoc::getLineAngle() { return m_pUI->getLineAngle(); }
 void ImpressionistDoc::setLineAngle(double angle) { m_pUI->setLineAngle(angle); }
 double ImpressionistDoc::getAlpha() { return m_pUI->getAlpha(); }
+double ImpressionistDoc::getRed(){ return m_pUI->getRed(); }
+double ImpressionistDoc::getGreen(){ return m_pUI->getGreen(); }
+double ImpressionistDoc::getBlue(){ return m_pUI->getBlue(); }
+
+
+
+
 void ImpressionistDoc::confirmLastModify()
 {
 	memcpy(m_ucPainting_prev, m_ucPainting, m_nWidth * m_nHeight * 3);
