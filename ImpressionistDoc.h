@@ -22,6 +22,10 @@ public:
 	int		loadImage(char *iname);			// called by the UI to load image
 	int		saveImage(char *iname);			// called by the UI to save image
 
+	int		loadAnotherImage(char* iname);
+	int		loadEdgeImage(char* iname);
+
+	void	generateEdgeImage();
 
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
 	void	setBrushType(int type);			// called by the UI to set the brushType
@@ -36,11 +40,14 @@ public:
 	double	getGreen();
 	double	getBlue();
 	int		getLevel();
+	int		getThreshold();
 	void	setLineDirectionChoice(int choice); // set the line direction choice to brush
 	void    setBlurSharpBrushChoice(int choice);
 	void    confirmLastModify();
 	void	undo();
-	int     dissolve_image(char* iname);
+	int    dissolve_image(char* iname);
+	bool   isEdge(const int x, const int y);
+	void	getGradientOfPoint(const int x, const int y, int& Gx, int& Gy);
 
 // Attributes
 public:
@@ -53,10 +60,11 @@ public:
 	// Bitmaps for original image and painting.
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucPainting;
-	unsigned char* m_ucPainting_prev; // prev bitmap for undo
-
+	unsigned char*  m_ucPainting_prev; // prev bitmap for undo
+	unsigned char*  m_anotherBitmap;
+	unsigned char*  m_edgeBitmap;
 	// The current active brush.
-	ImpBrush*			m_pCurrentBrush;
+	ImpBrush*		m_pCurrentBrush;
 
 	// Size of the brush.
 	int m_nSize;	

@@ -42,43 +42,104 @@ void LineBrush::BrushMove(const Point source, const Point target)
 	double angle;
 	switch (lineDirectionChoice)
 	{
-	case SLIDER_RIGHT_CLICK:
-		angle = pDoc->getLineAngle();
-		break;
-	case BRUSH_DIRECTION:
-		angle = pDoc->brushMoveAngle;
-		break;
-	case GRADIENT:
-		int sobel_x[3][3] =
-		{
-			{ 1, 0, -1 },
-			{ 2, 0, -2 },
-			{ 1, 0, -1 }
-		};
-		int Gx = 0, Gy = 0;
-		for (int i = -1; i <= 1; i++)
-		{
-			for (int j = -1; j <= 1; j++)
-			{
-				GLubyte* pixel = pDoc->GetOriginalPixel(source.x + i, source.y + j);
-				// formula from tutorial doc page 19
-				int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
-				Gx += sobel_x[i + 1][j + 1] * pixelValue;
-				Gy += sobel_x[j + 1][i + 1] * pixelValue;
-			}
-		}
-		angle = atan2(Gx, Gy) / M_PI / 2.0 * 360; // prependicular to gradient
-
+	    case SLIDER_RIGHT_CLICK:
+	    	angle = pDoc->getLineAngle();
+	    	break;
+	    case BRUSH_DIRECTION:
+	    	angle = pDoc->brushMoveAngle;
+	    	break;
+	    case GRADIENT:
+	    {
+	    	int sobel_x[3][3] =
+	    	{
+	    		{ 1, 0, -1 },
+	    		{ 2, 0, -2 },
+	    		{ 1, 0, -1 }
+	    	};
+	    	int Gx = 0, Gy = 0;
+	    	for (int i = -1; i <= 1; i++)
+	    	{
+	    		for (int j = -1; j <= 1; j++)
+	    		{
+	    			GLubyte* pixel = pDoc->GetOriginalPixel(source.x + i, source.y + j);
+	    			// formula from tutorial doc page 19
+	    			int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+	    			Gx += sobel_x[i + 1][j + 1] * pixelValue;
+	    			Gy += sobel_x[j + 1][i + 1] * pixelValue;
+	    		}
+	    	}
+	    	angle = atan2(Gx, Gy) / M_PI / 2.0 * 360; // prependicular to gradient
+	    	break;
+	    }
+	    case ANOTHER_GRADIENT:
+	    {
+	    	int sobel_x[3][3] =
+	    	{
+	    		{ 1, 0, -1 },
+	    		{ 2, 0, -2 },
+	    		{ 1, 0, -1 }
+	    	};
+	    	int Gx = 0, Gy = 0;
+	    	for (int i = -1; i <= 1; i++)
+	    	{
+	    		for (int j = -1; j <= 1; j++)
+	    		{
+	    			GLubyte* pixel = pDoc->m_anotherBitmap + 3 * ((source.y + j) * pDoc->m_nWidth + source.x + i);
+	    			// formula from tutorial doc page 19
+	    			int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+	    			Gx += sobel_x[i + 1][j + 1] * pixelValue;
+	    			Gy += sobel_x[j + 1][i + 1] * pixelValue;
+	    		}
+	    	}
+	    	angle = atan2(Gx, Gy) / M_PI / 2.0 * 360; // prependicular to gradient
+	    	break;
+	    }
 	}
 	double rad = angle / 360.0 * 2 * M_PI;
 	double x_length = size * cos(rad);
 	double y_length = size * sin(rad);
-	glBegin(GL_LINES);
-	SetColor(source); // set color of source(original paint) to gl
-	glVertex2d(target.x - x_length / 2, target.y - y_length / 2);
-	glVertex2d(target.x + x_length / 2, target.y + y_length / 2);
+	if (!pDoc->m_pUI->getEdgeClipping())
+	{
+		glBegin(GL_LINES);
+		SetColor(source); // set color of source(original paint) to gl
+		glVertex2d(target.x - x_length / 2, target.y - y_length / 2);
+		glVertex2d(target.x + x_length / 2, target.y + y_length / 2);
 
-	glEnd();
+		glEnd();
+	}
+	else
+	{
+		int x1, x2, y1, y2;
+		for (int i = 0; i > -size/2; i--)
+		{
+			if (pDoc->isEdge(source.x + i * cos(rad), source.y + i * sin(rad)))
+			{
+				x1 = source.x + i * cos(rad);
+				y1 = source.y + i * sin(rad);
+				break;
+			}
+			x1 = target.x - x_length / 2;
+			y1 = target.y - y_length / 2;
+		}
+		for (int i = 0; i < size / 2; i++)
+		{
+			if (pDoc->isEdge(source.x + i * cos(rad), source.y + i * sin(rad)))
+			{
+				x2 = source.x + i * cos(rad);
+				y2 = source.y + i * sin(rad);
+				break;
+			}
+			x2 = target.x + x_length / 2;
+			y2 = target.y + y_length / 2;
+		}
+
+		glBegin(GL_LINES);
+		SetColor(source); // set color of source(original paint) to gl
+		glVertex2d(x1, y1);
+		glVertex2d(x2, y2);
+
+		glEnd();
+	}
 }
 
 void LineBrush::BrushEnd(const Point source, const Point target)

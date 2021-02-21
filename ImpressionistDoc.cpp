@@ -21,6 +21,7 @@
 #include "ScatteredLineBrush.h"
 #include "PentagramBrush.h"
 #include "BlurSharpBrush.h"
+#include <cmath>
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
@@ -32,7 +33,9 @@ ImpressionistDoc::ImpressionistDoc()
 	m_nWidth		= -1;
 	m_ucBitmap		= NULL;
 	m_ucPainting	= NULL;
-
+	m_anotherBitmap = NULL;
+	m_edgeBitmap = NULL;
+	m_ucPainting_prev = NULL;
 
 	// create one instance of each brush
 	ImpBrush::c_nBrushCount	= NUM_BRUSH_TYPE;
@@ -113,7 +116,7 @@ double ImpressionistDoc::getRed(){ return m_pUI->getRed(); }
 double ImpressionistDoc::getGreen(){ return m_pUI->getGreen(); }
 double ImpressionistDoc::getBlue(){ return m_pUI->getBlue(); }
 int ImpressionistDoc::getLevel() { return m_pUI->getLevel(); }
-
+int	ImpressionistDoc::getThreshold() { return m_pUI->getThreshold(); }
 
 
 void ImpressionistDoc::confirmLastModify()
@@ -127,6 +130,39 @@ void ImpressionistDoc::undo()
 	// m_pUI->m_paintView->RestoreContent();
 	m_pUI->m_paintView->refresh();
 }
+bool ImpressionistDoc::isEdge(int x, int y)
+{
+	if (x < 0 || x > m_nWidth || y < 0 || y > m_nHeight || !m_edgeBitmap)
+		return 0;
+	return (*(m_edgeBitmap + 3 * (y * m_nWidth + x)) == 255);
+}
+
+void ImpressionistDoc::getGradientOfPoint(const int x, const int y, int& Gx, int& Gy)
+{
+	int sobel_x[3][3] =
+	{
+		{ 1, 0, -1 },
+		{ 2, 0, -2 },
+		{ 1, 0, -1 }
+	};
+
+
+	for (int a = -1; a <= 1; a++)
+	{
+		for (int b = -1; b <= 1; b++)
+		{
+			GLubyte* pixel = GetOriginalPixel(x+a, y+b);
+			// formula from tutorial doc page 19
+			int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+			Gx += sobel_x[a + 1][b + 1] * pixelValue;
+			Gy += sobel_x[b + 1][a + 1] * pixelValue;
+		}
+	}
+	Gx = abs(Gx);
+	Gy = abs(Gy);
+}
+
+
 //---------------------------------------------------------
 // Load the specified image
 // This is called by the UI when the load image button is 
@@ -170,7 +206,7 @@ int ImpressionistDoc::loadImage(char *iname)
 
 	// display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);	
-	m_pUI->m_origView->refresh();
+	m_pUI->m_origView->showImageChoice(SHOW_ORIGIN_IMAGE);
 
 	// refresh paint view as well
 	m_pUI->m_paintView->resizeWindow(width, height);	
@@ -179,13 +215,93 @@ int ImpressionistDoc::loadImage(char *iname)
 
 	return 1;
 }
+int ImpressionistDoc::loadAnotherImage(char* iname)
+{
+
+	// try to open the image to read
+	unsigned char* data;
+	int				width, height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("Can't load. Image size must be same!");
+		delete[] data;
+		return 0;
+	}
 
 
+	// release old storage
+	if (m_anotherBitmap) delete[] m_anotherBitmap;
+	m_anotherBitmap = data;
+
+	return 1;
+}
+int ImpressionistDoc::loadEdgeImage(char* iname)
+{
+
+	// try to open the image to read
+	unsigned char* data;
+	int				width, height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("Can't load. Image size must be same!");
+		delete[] data;
+		return 0;
+	}
+
+	// release old storage
+	if (m_edgeBitmap) delete[] m_edgeBitmap;
+	m_edgeBitmap = data;
+
+	return 1;
+}
 //----------------------------------------------------------------
 // Save the specified image
 // This is called by the UI when the save image menu button is 
 // pressed.
 //----------------------------------------------------------------
+void ImpressionistDoc::generateEdgeImage() 
+{
+	if (m_edgeBitmap) delete[] m_edgeBitmap;
+	m_edgeBitmap = new unsigned char[m_nWidth * m_nHeight * 3];
+
+
+	for (int x = 0; x < m_nWidth; x++) {
+		for (int y = 0; y < m_nHeight; y++) {
+
+			int Gx = 0, Gy = 0;
+
+			getGradientOfPoint(x, y, Gx, Gy);
+
+			int threshold = getThreshold();
+			if (Gx >= threshold || Gy >= threshold) {
+				m_edgeBitmap[3 * (y * m_nWidth + x)] = (unsigned char)255;
+				m_edgeBitmap[3 * (y * m_nWidth + x) + 1] = (unsigned char)255;
+				m_edgeBitmap[3 * (y * m_nWidth + x) + 2] = (unsigned char)255;
+			}
+			else {
+				m_edgeBitmap[3 * (y * m_nWidth + x)] = (unsigned char)0;
+				m_edgeBitmap[3 * (y * m_nWidth + x) + 1] = (unsigned char)0;
+				m_edgeBitmap[3 * (y * m_nWidth + x) + 2] = (unsigned char)0;
+			}
+
+		}
+	}
+
+
+}
+
 int ImpressionistDoc::saveImage(char *iname) 
 {
 
@@ -207,12 +323,14 @@ int ImpressionistDoc::dissolve_image(char* iname)
 	if (!m_ucBitmap)
 	{
 		fl_alert("Load an origin image first");
+		delete[] data;
 		return 0;
 	}
 	// only can dissolve image with smaller or equal size
 	if (width > m_nWidth || height > m_nHeight)
 	{
 		fl_alert("The loaded file is larger than the origin, choose a smaller one.");
+		delete[] data;
 		return 0;
 	}
 

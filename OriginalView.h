@@ -20,6 +20,12 @@
 
 class ImpressionistDoc;
 
+enum
+{
+	SHOW_ORIGIN_IMAGE = 0,
+	SHOW_ANOTHER_IMAGE,
+	SHOW_EDGE_IMAGE,
+};
 class OriginalView : public Fl_Gl_Window
 {
 public:
@@ -32,12 +38,15 @@ public:
 
 	void setMarker(const Point cursor) { marker = cursor; redraw(); }
 
+	void showImageChoice(int choice) { imageShow = choice; redraw(); }
+	
 	ImpressionistDoc*	m_pDoc;
 
 private:
 	int	m_nWindowWidth, 
 		m_nWindowHeight;
 	Point marker;
+	int imageShow{ SHOW_ORIGIN_IMAGE };
 
 };
 

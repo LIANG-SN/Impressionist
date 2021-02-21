@@ -182,6 +182,24 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
 		pDoc->loadImage(newfile);
 	}
 }
+void ImpressionistUI::cb_load_another_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadAnotherImage(newfile);
+	}
+}
+void ImpressionistUI::cb_load_edge_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadEdgeImage(newfile);
+	}
+}
 void ImpressionistUI::cb_load_dissolve_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc* pDoc = whoami(o)->getDocument();
@@ -333,6 +351,22 @@ void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
 	whoami(o)->getDocument()->undo();
 }
 
+void ImpressionistUI::cb_auto_paint(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_paintView->setEventType(AUTO_PAINT);
+	whoami(o)->m_paintView->setEventTrue();
+	whoami(o)->m_paintView->refresh();
+}
+void ImpressionistUI::cb_show_image_choice(Fl_Menu_* o, void* v)
+{
+	int choice = (int)v;
+	whoami(o)->m_origView->showImageChoice(choice);
+}
+void ImpressionistUI::cb_edge_clip(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_edgeClipping = bool(((Fl_Check_Button*)o)->value());
+}
+
 void ImpressionistUI::cb_colorChooserWindow(Fl_Menu_* o, void* v) {
 	whoami(o)->m_ColorChooseWindow->show();
 }
@@ -362,10 +396,14 @@ void ImpressionistUI::cb_edgeThresholdSlider(Fl_Widget* o, void* v)
 
 void ImpressionistUI::cb_edgePaintingButton(Fl_Widget* o, void* v)
 {
-	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
 
-	pDoc->clearCanvas();
+	pDoc->generateEdgeImage();
+	pUI->m_origView->showImageChoice(SHOW_EDGE_IMAGE);
+	
 }
+
 
 
 
@@ -437,16 +475,26 @@ void ImpressionistUI::setLineAngle(int angle) { m_lineAngle = angle; }
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
-		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image },
-		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushes },
-		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
-	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
+		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
+	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
 		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
-		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
-		{ "&Colors...", FL_ALT + 'w', (Fl_Callback*)ImpressionistUI::cb_colorChooserWindow, 0, FL_MENU_DIVIDER },
+		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
+		// devide
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
 		{ 0 },
-
+	{"&Show", 0, 0, 0, FL_SUBMENU},
+	    {"show origin image", NULL, (Fl_Callback*)ImpressionistUI::cb_show_image_choice, (void*)SHOW_ORIGIN_IMAGE },
+	    {"show another image", NULL, (Fl_Callback*)ImpressionistUI::cb_show_image_choice, (void*)SHOW_ANOTHER_IMAGE},
+	    {"show edge image", NULL, (Fl_Callback*)ImpressionistUI::cb_show_image_choice, (void*)SHOW_EDGE_IMAGE },
+	    {0},
+	{"Functions", 0, 0, 0, FL_SUBMENU},
+		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushes },
+		{ "&Colors...", FL_ALT + 'w', (Fl_Callback*)ImpressionistUI::cb_colorChooserWindow, 0, FL_MENU_DIVIDER },
+		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas},
+		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
+		{ "Auto paint", NULL, (Fl_Callback*)ImpressionistUI::cb_auto_paint},
+	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
+		{0},
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
 		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
 		{ 0 },
@@ -470,7 +518,8 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
 Fl_Menu_Item ImpressionistUI::lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1] = {
 	{"Slider/Right mouse", FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_lineDirectionChoice, (void*)SLIDER_RIGHT_CLICK},
 	{"Gradient", FL_ALT + 'g', (Fl_Callback*)ImpressionistUI::cb_lineDirectionChoice, (void*)GRADIENT},
-	{"Brush Direction", FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_lineDirectionChoice, (void*)BRUSH_DIRECTION}
+	{"Brush Direction", FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_lineDirectionChoice, (void*)BRUSH_DIRECTION},
+	{"Gradient of another image", NULL, (Fl_Callback*)ImpressionistUI::cb_lineDirectionChoice, (void*)ANOTHER_GRADIENT}
 };
 
 Fl_Menu_Item ImpressionistUI::BlurSharpChoiceMenu[NUM_BLURSHARP_BRUSH + 1] = {
@@ -523,6 +572,12 @@ ImpressionistUI::ImpressionistUI() {
 	m_BrushTypeChoice->user_data((void*)(this));	// record self to be used by static callback functions
 	m_BrushTypeChoice->menu(lineDirectionChoiceMenu);
 	m_BrushTypeChoice->callback(cb_lineDirectionChoice);
+
+	// add edge clipping checkbox
+	m_EdgeClipButton = new Fl_Check_Button(260, 50, 150, 25, "Edge Clip");
+	m_EdgeClipButton->value(m_edgeClipping);
+	m_EdgeClipButton->user_data((void*)(this));
+	m_EdgeClipButton->callback(cb_edge_clip);
 
 	// clear canvas button
 	m_ClearCanvasButton = new Fl_Button(240, 10, 150, 25, "&Clear Canvas");
@@ -581,6 +636,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_lineWidthSlider->align(FL_ALIGN_RIGHT);
 	m_lineWidthSlider->callback(cb_alphaSlides);
 
+
 	// add blurring & sharpening brush 
 	m_BlurSharpTypeChooser = new Fl_Choice(110, 200, 150, 25, "&Blur or Sharpen");
 	m_BlurSharpTypeChooser->user_data((void*)(this));	// record self to be used by static callback functions
@@ -616,6 +672,8 @@ ImpressionistUI::ImpressionistUI() {
 	m_DrawEdgeButton->user_data((void*)(this));
 	m_DrawEdgeButton->callback(cb_edgePaintingButton);
 
+
+	
 	m_brushDialog->end();
 
 	// add color chooser
