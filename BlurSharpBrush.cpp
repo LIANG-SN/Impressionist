@@ -14,11 +14,7 @@ void BlurSharpBrush::BrushBegin(const Point source, const Point target)
 {
 	ImpressionistDoc* pDoc = GetDocument();
 	ImpressionistUI* dlg = pDoc->m_pUI;
-
-
-
-
-
+	glPointSize((float)0.4);
 	BrushMove(source, target);
 }
 

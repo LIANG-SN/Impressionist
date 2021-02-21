@@ -266,6 +266,34 @@ int ImpressionistDoc::loadEdgeImage(char* iname)
 
 	return 1;
 }
+
+int	ImpressionistDoc::loadMuralImage(char* iname) 
+{
+	unsigned char* data;
+	int				width, height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("Can't load. Image size must be same!");
+		delete[] data;
+		return 0;
+	}
+	if (m_ucBitmap) delete[] m_ucBitmap;
+
+	m_ucBitmap = data;
+
+
+	// display it on origView
+	m_pUI->m_origView->resizeWindow(width, height);
+	m_pUI->m_origView->showImageChoice(SHOW_ORIGIN_IMAGE);
+
+	return 1;
+}
 //----------------------------------------------------------------
 // Save the specified image
 // This is called by the UI when the save image menu button is 

@@ -24,6 +24,7 @@ public:
 
 	int		loadAnotherImage(char* iname);
 	int		loadEdgeImage(char* iname);
+	int		loadMuralImage(char* iname);
 
 	void	generateEdgeImage();
 

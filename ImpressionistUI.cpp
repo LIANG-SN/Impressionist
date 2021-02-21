@@ -200,6 +200,16 @@ void ImpressionistUI::cb_load_edge_image(Fl_Menu_* o, void* v)
 		pDoc->loadEdgeImage(newfile);
 	}
 }
+void ImpressionistUI::cb_new_mural_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadMuralImage(newfile);
+	}
+}
+
 void ImpressionistUI::cb_load_dissolve_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc* pDoc = whoami(o)->getDocument();
@@ -477,6 +487,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
 		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
 	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
+		{"New Mural Image", NULL, (Fl_Callback*)ImpressionistUI::cb_new_mural_image},
 		{ "&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
 		// devide

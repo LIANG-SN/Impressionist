@@ -106,6 +106,7 @@ private:
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void cb_load_another_image(Fl_Menu_* o, void* v);
 	static void cb_load_edge_image(Fl_Menu_* o, void* v);
+	static void cb_new_mural_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_dissolve_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
@@ -130,7 +131,7 @@ private:
 	static void cb_colorChooser(Fl_Widget* o, void* v);
 	static void cb_edgeThresholdSlider(Fl_Widget* o, void* v);
 	static void cb_edgePaintingButton(Fl_Widget* o, void* v);
-
+	
 };
 
 #endif
