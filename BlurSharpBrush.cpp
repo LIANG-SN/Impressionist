@@ -102,30 +102,41 @@ void BlurSharpBrush::SharpenMove(const Point source, const Point target)
 	int strength = pDoc->getLevel();
 	int size = pDoc->getSize();
 
-	int sobel_x[3][3] =
-	{
-		{ 1, 0, -1 },
-		{ 2, 0, -2 },
-		{ 1, 0, -1 }
-	};
+
 
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
 			int Gx = 0, Gy = 0;
 			int x = source.x - size / 2 + i;
 			int y = source.y - size / 2 + j;
+			pDoc->getGradientOfPoint(x, y, Gx, Gy);
 
-			for (int a = -1; a <= 1; i++)
-			{
-				for (int b = -1; b <= 1; j++)
-				{
-					GLubyte* pixel = pDoc->GetOriginalPixel(x , y);
-					// formula from tutorial doc page 19
-					int pixelValue = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
-					Gx += sobel_x[a + 1][b + 1] * pixelValue;
-					Gy += sobel_x[b + 1][a + 1] * pixelValue;
-				}
+			GLubyte temp[4];
+			memcpy(temp, pDoc->GetOriginalPixel(x, y), 3);
+			temp[3] = GLubyte(255 * pDoc->getAlpha());
+
+			if (Gx > 100 || Gy > 100) {
+				double h, s, v;
+				double temp2[4];
+
+				dlg->m_ColorChooser->rgb2hsv(temp[0] / 255, temp[1] / 255, temp[2] / 255, h, s, v);
+				v += strength * 5 / 255;
+				v = ((int)(v * 255) % 255) / 255;
+				dlg->m_ColorChooser->rgb2hsv(h, s, v, temp2[0], temp2[1], temp2[2]);
+
+				GLubyte colors[4];
+				colors[0] = temp2[0] * pDoc->getRed();
+				colors[1] = temp2[1] * pDoc->getGreen();
+				colors[2] = temp2[2] * pDoc->getBlue();
+				colors[3] = GLubyte(255 * pDoc->getAlpha());
+				glColor4ubv(colors);
 			}
+			else
+				glColor4ubv(temp);
+
+			glBegin(GL_POINTS);
+			glVertex2d(target.x - size / 2 + i, target.y - size / 2 + j);
+			glEnd();
 		}
 	}
 
