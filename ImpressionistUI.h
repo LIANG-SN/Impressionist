@@ -45,8 +45,10 @@ public:
 	Fl_Slider* m_lineAngleSlider;
 	Fl_Choice* m_lineDirectionChoice;
 
+	Fl_Check_Button* m_EdgeClipButton;
 	Fl_Window* m_ColorChooseWindow;
 	Fl_Color_Chooser* m_ColorChooser;
+
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -65,6 +67,7 @@ public:
 	void 				setLineAngle(int angle);
 	double				getAlpha() { return alpha; }
 	void				setAlpha(double alpha) { this->alpha = alpha; }
+	bool				getEdgeClipping() { return m_edgeClipping; }
 	double				getRed() { return colors[0]; };
 	double				getGreen() { return colors[1]; };
 	double				getBlue() { return colors[2]; };
@@ -77,6 +80,7 @@ private:
 	int		m_lineWidth{ 1 };
 	int		m_lineAngle{ 0 };
 	double  alpha{ 1 };
+	bool    m_edgeClipping{ 1 };
 	double	colors[3]{ 1.0,1.0,1.0 };
 
 	// Static class members
@@ -89,6 +93,8 @@ private:
 	// All callbacks here.  Callbacks are declared 
 	// static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
+	static void cb_load_another_image(Fl_Menu_* o, void* v);
+	static void cb_load_edge_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_dissolve_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
@@ -104,6 +110,9 @@ private:
 	static void cb_alphaSlides(Fl_Widget* o, void* v);
 	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
+	static void cb_auto_paint(Fl_Menu_* o, void* v);
+	static void cb_show_image_choice(Fl_Menu_* o, void* v);
+	static void	cb_edge_clip(Fl_Widget* o, void* v);
 	static void cb_colorChooserWindow(Fl_Menu_* o, void* v);
 	static void cb_colorChooser(Fl_Widget* o, void* v);
 };
