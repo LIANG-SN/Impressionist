@@ -35,7 +35,9 @@ public:
 	double	getRed();
 	double	getGreen();
 	double	getBlue();
+	int		getLevel();
 	void	setLineDirectionChoice(int choice); // set the line direction choice to brush
+	void    setBlurSharpBrushChoice(int choice);
 	void    confirmLastModify();
 	void	undo();
 	int     dissolve_image(char* iname);

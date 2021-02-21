@@ -20,6 +20,7 @@
 #include "ScatteredCircleBrush.h"
 #include "ScatteredLineBrush.h"
 #include "PentagramBrush.h"
+#include "BlurSharpBrush.h"
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
@@ -52,6 +53,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new ScatteredCircleBrush( this, "Scattered Circles" );
 	ImpBrush::c_pBrushes[BRUSH_PENTAGRAM]
 		= new PentagramBrush(this, "Pentagram");
+	ImpBrush::c_pBrushes[BRUSH_BLURORSHARPEN]
+		= new BlurSharpBrush(this, "Blur or Sharpen");
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
@@ -89,6 +92,11 @@ void ImpressionistDoc::setLineDirectionChoice(int choice)
 	ImpBrush::lineDirectionChoice = choice;
 }
 
+void ImpressionistDoc::setBlurSharpBrushChoice(int choice)
+{
+	ImpBrush::BlurSharpBrushChoice = choice;
+}
+
 //---------------------------------------------------------
 // Returns the size of the brush.
 //---------------------------------------------------------
@@ -104,7 +112,7 @@ double ImpressionistDoc::getAlpha() { return m_pUI->getAlpha(); }
 double ImpressionistDoc::getRed(){ return m_pUI->getRed(); }
 double ImpressionistDoc::getGreen(){ return m_pUI->getGreen(); }
 double ImpressionistDoc::getBlue(){ return m_pUI->getBlue(); }
-
+int ImpressionistDoc::getLevel() { return m_pUI->getLevel(); }
 
 
 

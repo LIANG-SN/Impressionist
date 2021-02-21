@@ -313,6 +313,12 @@ void ImpressionistUI::cb_alphaSlides(Fl_Widget* o, void* v)
 {
 	((ImpressionistUI*)(o->user_data()))->alpha = double(((Fl_Slider*)o)->value());
 }
+
+void ImpressionistUI::cb_levelSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->level = int(((Fl_Slider*)o)->value());
+}
+
 void ImpressionistUI::cb_swapOriginPaint(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc* pDoc = whoami(o)->getDocument();
@@ -337,11 +343,22 @@ void ImpressionistUI::cb_colorChooser(Fl_Widget* o, void* v){
 	((ImpressionistUI*)(o->user_data()))->colors[2] = ((Fl_Color_Chooser*)o)->b();
 }
 
+void ImpressionistUI::cb_BlurSharpChoice(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+
+	int choice = (int)v;
+
+	pDoc->setBlurSharpBrushChoice(choice);
+}
 
 
 
-
-
+void ImpressionistUI::cb_edgeThresholdSlider(Fl_Widget* o, void* v)
+{}
+void ImpressionistUI::cb_edgePaintingButton(Fl_Widget* o, void* v)
+{}
 
 
 
@@ -439,6 +456,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
   {"Scattered Lines",	FL_ALT + 'm', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_LINES},
   {"Scattered Circles",	FL_ALT + 'd', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_CIRCLES},
   {"Pentagram",			FL_ALT + 'z', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_PENTAGRAM},
+  {"Blur or Sharpen",	0,			  (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_BLURORSHARPEN},
   {0}
 };
 
@@ -448,6 +466,10 @@ Fl_Menu_Item ImpressionistUI::lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1] = 
 	{"Brush Direction", FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_lineDirectionChoice, (void*)BRUSH_DIRECTION}
 };
 
+Fl_Menu_Item ImpressionistUI::BlurSharpChoiceMenu[NUM_BLURSHARP_BRUSH + 1] = {
+	{"Blurring", 0, (Fl_Callback*)ImpressionistUI::cb_BlurSharpChoice, (void*)SLIDER_RIGHT_CLICK},
+	{"Sharpening", 0, (Fl_Callback*)ImpressionistUI::cb_BlurSharpChoice, (void*)GRADIENT},
+};
 //----------------------------------------------------
 // Constructor.  Creates all of the widgets.
 // Add new widgets here
@@ -514,7 +536,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_BrushSizeSlider->callback(cb_sizeSlides);
 
 	// add line width slider
-	m_lineWidthSlider = new Fl_Value_Slider(10, 120, 300, 20, "Line Width");
+	m_lineWidthSlider = new Fl_Value_Slider(10, 110, 300, 20, "Line Width");
 	m_lineWidthSlider->user_data((void*)(this));	// record self to be used by static callback functions
 	m_lineWidthSlider->type(FL_HOR_NICE_SLIDER);
 	m_lineWidthSlider->labelfont(FL_COURIER);
@@ -527,7 +549,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_lineWidthSlider->callback(cb_lineWidthSlides);
 
 	// add the line angle slider
-	m_lineWidthSlider = new Fl_Value_Slider(10, 150, 300, 20, "Line Angle");
+	m_lineWidthSlider = new Fl_Value_Slider(10, 140, 300, 20, "Line Angle");
 	m_lineWidthSlider->user_data((void*)(this));	// record self to be used by static callback functions
 	m_lineWidthSlider->type(FL_HOR_NICE_SLIDER);
 	m_lineWidthSlider->labelfont(FL_COURIER);
@@ -540,7 +562,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_lineWidthSlider->callback(cb_lineAngleSlides);
 
 	// add the alpha value slider
-	m_lineWidthSlider = new Fl_Value_Slider(10, 180, 300, 20, "alpha value");
+	m_lineWidthSlider = new Fl_Value_Slider(10, 170, 300, 20, "alpha value");
 	m_lineWidthSlider->user_data((void*)(this));	// record self to be used by static callback functions
 	m_lineWidthSlider->type(FL_HOR_NICE_SLIDER);
 	m_lineWidthSlider->labelfont(FL_COURIER);
@@ -551,6 +573,41 @@ ImpressionistUI::ImpressionistUI() {
 	m_lineWidthSlider->value(alpha);
 	m_lineWidthSlider->align(FL_ALIGN_RIGHT);
 	m_lineWidthSlider->callback(cb_alphaSlides);
+
+	// add blurring & sharpening brush 
+	m_BlurSharpTypeChooser = new Fl_Choice(110, 200, 150, 25, "&Blur or Sharpen");
+	m_BlurSharpTypeChooser->user_data((void*)(this));	// record self to be used by static callback functions
+	m_BlurSharpTypeChooser->menu(BlurSharpChoiceMenu);
+	m_BlurSharpTypeChooser->callback(cb_BlurSharpChoice);
+
+	m_BlurSharpLevelSlider = new Fl_Value_Slider(10, 230, 300, 20, "Level");
+	m_BlurSharpLevelSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_BlurSharpLevelSlider->type(FL_HOR_NICE_SLIDER);
+	m_BlurSharpLevelSlider->labelfont(FL_COURIER);
+	m_BlurSharpLevelSlider->labelsize(12);
+	m_BlurSharpLevelSlider->minimum(1);
+	m_BlurSharpLevelSlider->maximum(10);
+	m_BlurSharpLevelSlider->step(1);
+	m_BlurSharpLevelSlider->value(level);
+	m_BlurSharpLevelSlider->align(FL_ALIGN_RIGHT);
+	m_BlurSharpLevelSlider->callback(cb_levelSlider);
+
+	m_SharpThreshold = new Fl_Value_Slider(10, 260, 180, 20, "Edge Threshold");
+	m_SharpThreshold->user_data((void*)(this));	// record self to be used by static callback functions
+	m_SharpThreshold->type(FL_HOR_NICE_SLIDER);
+	m_SharpThreshold->labelfont(FL_COURIER);
+	m_SharpThreshold->labelsize(12);
+	m_SharpThreshold->minimum(0);
+	m_SharpThreshold->maximum(500);
+	m_SharpThreshold->value(100);
+	m_SharpThreshold->step(1);
+	m_SharpThreshold->value(threshold);
+	m_SharpThreshold->align(FL_ALIGN_RIGHT);
+	m_SharpThreshold->callback(cb_edgeThresholdSlider);
+
+	m_DrawEdgeButton = new Fl_Button(300, 260, 80, 20, "&Do it");
+	m_DrawEdgeButton->user_data((void*)(this));
+	m_DrawEdgeButton->callback(cb_edgePaintingButton);
 
 	m_brushDialog->end();
 

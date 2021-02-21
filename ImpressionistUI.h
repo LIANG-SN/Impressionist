@@ -48,6 +48,11 @@ public:
 	Fl_Window* m_ColorChooseWindow;
 	Fl_Color_Chooser* m_ColorChooser;
 
+	Fl_Choice* m_BlurSharpTypeChooser;
+	Fl_Slider* m_BlurSharpLevelSlider;
+	Fl_Slider* m_SharpThreshold;
+	Fl_Button* m_DrawEdgeButton;
+
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
 	ImpressionistDoc* getDocument();
@@ -68,6 +73,8 @@ public:
 	double				getRed() { return colors[0]; };
 	double				getGreen() { return colors[1]; };
 	double				getBlue() { return colors[2]; };
+	int					getLevel() { return level; };
+	int					getThreshold() { return threshold; };
 
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
@@ -78,11 +85,14 @@ private:
 	int		m_lineAngle{ 0 };
 	double  alpha{ 1 };
 	double	colors[3]{ 1.0,1.0,1.0 };
+	int		level{ 1 };
+	int		threshold{ 100 };
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
 	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE + 1];
 	static Fl_Menu_Item		lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1];
+	static Fl_Menu_Item		BlurSharpChoiceMenu[NUM_BLURSHARP_BRUSH + 1];
 
 	static ImpressionistUI* whoami(Fl_Menu_* o);
 
@@ -102,10 +112,15 @@ private:
 	static void cb_lineWidthSlides(Fl_Widget* o, void* v);
 	static void cb_lineAngleSlides(Fl_Widget* o, void* v);
 	static void cb_alphaSlides(Fl_Widget* o, void* v);
+	static void cb_BlurSharpChoice(Fl_Widget* o, void* v);
+	static void cb_levelSlider(Fl_Widget* o, void* v);
 	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
 	static void cb_colorChooserWindow(Fl_Menu_* o, void* v);
 	static void cb_colorChooser(Fl_Widget* o, void* v);
+	static void cb_edgeThresholdSlider(Fl_Widget* o, void* v);
+	static void cb_edgePaintingButton(Fl_Widget* o, void* v);
+
 };
 
 #endif

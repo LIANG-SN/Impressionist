@@ -12,6 +12,7 @@
 int			ImpBrush::c_nBrushCount	= 0;
 ImpBrush**	ImpBrush::c_pBrushes	= NULL;
 int			ImpBrush::lineDirectionChoice = SLIDER_RIGHT_CLICK;
+int			ImpBrush::BlurSharpBrushChoice = BLURRING;
 
 ImpBrush::ImpBrush(ImpressionistDoc*	pDoc, 
 				   char*				name) :

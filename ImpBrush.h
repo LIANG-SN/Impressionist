@@ -19,6 +19,7 @@ enum
 	BRUSH_SCATTERED_LINES,
 	BRUSH_SCATTERED_CIRCLES,
 	BRUSH_PENTAGRAM,
+	BRUSH_BLURORSHARPEN,
 	NUM_BRUSH_TYPE // Make sure this stays at the end!
 };
 
@@ -29,6 +30,13 @@ enum
 	GRADIENT,
 	BRUSH_DIRECTION,
 	NUM_DIRECTION_TYPE
+};
+
+enum
+{
+	BLURRING = 0,
+	SHARPENING,
+	NUM_BLURSHARP_BRUSH
 };
 
 class ImpressionistDoc; // Pre-declaring class
@@ -68,6 +76,7 @@ public:
 	static int			c_nBrushCount;	// How many brushes we have,
 	static ImpBrush**	c_pBrushes;		// and what they are.
 	static int			lineDirectionChoice;
+	static int			BlurSharpBrushChoice;
 
 private:
 	ImpressionistDoc*	m_pDoc;
