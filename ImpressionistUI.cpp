@@ -356,9 +356,16 @@ void ImpressionistUI::cb_BlurSharpChoice(Fl_Widget* o, void* v)
 
 
 void ImpressionistUI::cb_edgeThresholdSlider(Fl_Widget* o, void* v)
-{}
+{
+	((ImpressionistUI*)(o->user_data()))->threshold = int(((Fl_Slider*)o)->value());
+}
+
 void ImpressionistUI::cb_edgePaintingButton(Fl_Widget* o, void* v)
-{}
+{
+	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+
+	pDoc->clearCanvas();
+}
 
 
 
