@@ -51,7 +51,7 @@ public:
 	void	undo();
 	int     dissolve_image(char* iname);
 	bool    isEdge(const int x, const int y);
-	void	getGradientOfPoint(const int x, const int y, int& Gx, int& Gy);
+	int 	getGradientOfPoint(const int x, const int y, int& Gx, int& Gy);
 
 // Attributes
 public:
@@ -85,6 +85,8 @@ public:
 	GLubyte* GetOriginalPixel( int x, int y );   
 	// Get the color of the original picture at the specified point	
 	GLubyte* GetOriginalPixel( const Point p );  
+	// Get the color of the painting picture at the specified coord
+	GLubyte* GetPaintingPixel(int x, int y);
 
 
 private:

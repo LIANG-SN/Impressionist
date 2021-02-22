@@ -16,12 +16,14 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Color_Chooser.H>
+#include <FL/FL_Text_Display.H>
 
 #include "Impressionist.h"
 #include "OriginalView.h"
 #include "PaintView.h"
 
 #include "ImpBrush.h"
+#include <string>
 
 class ImpressionistUI {
 public:
@@ -58,6 +60,9 @@ public:
 	Fl_Slider* m_SharpThresholdSlider;
 	Fl_Button* m_DrawEdgeButton;
 
+	Fl_Text_Buffer* m_textBuff;
+	Fl_Text_Display* m_textDisplay;
+
 
 	// Member functions
 	void			setDocument(ImpressionistDoc* doc);
@@ -83,7 +88,10 @@ public:
 	int					getLevel() { return level; };
 	int					getThreshold() { return threshold; };
 	double				getFadedRate() { return fadedRate; };
-
+	int					getMaxStrokeLength() { return maxStrokeLength; };
+	int					getMinStrokeLength() { return minStrokeLength; };
+	float				getCurveFilter() { return curveFilter; };
+	void				print(std::string s);
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
 
@@ -97,6 +105,9 @@ private:
 	int		level{ 1 };
 	int		threshold{ 100 };
 	double  fadedRate{ 0.00 };
+	int		maxStrokeLength{ 30 };
+	int		minStrokeLength{ 1 };
+	float     curveFilter{ 1 };
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];

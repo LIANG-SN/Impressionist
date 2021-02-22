@@ -21,7 +21,9 @@
 #include "ScatteredLineBrush.h"
 #include "PentagramBrush.h"
 #include "BlurSharpBrush.h"
+#include "CurveBrush.h"
 #include <cmath>
+#include <string>
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
@@ -60,6 +62,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new PentagramBrush(this, "Pentagram");
 	ImpBrush::c_pBrushes[BRUSH_BLURORSHARPEN]
 		= new BlurSharpBrush(this, "Blur or Sharpen");
+	ImpBrush::c_pBrushes[BRUSH_CURVE]
+		= new CurveBrush(this, "Curve");
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
@@ -139,16 +143,18 @@ bool ImpressionistDoc::isEdge(int x, int y)
 	return (*(m_edgeBitmap + 3 * (y * m_nWidth + x)) == 255);
 }
 
-void ImpressionistDoc::getGradientOfPoint(const int x, const int y, int& Gx, int& Gy)
+int ImpressionistDoc::getGradientOfPoint(const int x, const int y, int& Gx, int& Gy)
 {
+	if (x < 0 || x >= m_nWidth || y < 0 || y > m_nHeight)
+		return 0;
 	int sobel_x[3][3] =
 	{
 		{ 1, 0, -1 },
 		{ 2, 0, -2 },
 		{ 1, 0, -1 }
 	};
-
-
+	Gx = 0;
+	Gy = 0;
 	for (int a = -1; a <= 1; a++)
 	{
 		for (int b = -1; b <= 1; b++)
@@ -160,8 +166,10 @@ void ImpressionistDoc::getGradientOfPoint(const int x, const int y, int& Gx, int
 			Gy += sobel_x[b + 1][a + 1] * pixelValue;
 		}
 	}
-	Gx = abs(Gx);
-	Gy = abs(Gy);
+	// debug
+	std::string debug = "Gx: " + std::to_string(Gx) + "\n";
+	m_pUI->print(debug);
+	return int(sqrt(Gx * Gx + Gy * Gy));
 }
 
 
@@ -204,7 +212,7 @@ int ImpressionistDoc::loadImage(char *iname)
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
 								width*2, 
-								height+25);
+								height+325); // additional 300 for text window
 
 	// display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);	
@@ -315,7 +323,7 @@ void ImpressionistDoc::generateEdgeImage()
 			getGradientOfPoint(x, y, Gx, Gy);
 
 			int threshold = getThreshold();
-			if (Gx >= threshold || Gy >= threshold) {
+			if (abs(Gx) >= threshold || abs(Gy) >= threshold) {
 				m_edgeBitmap[3 * (y * m_nWidth + x)] = (unsigned char)255;
 				m_edgeBitmap[3 * (y * m_nWidth + x) + 1] = (unsigned char)255;
 				m_edgeBitmap[3 * (y * m_nWidth + x) + 2] = (unsigned char)255;
@@ -486,3 +494,17 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( const Point p )
 	return GetOriginalPixel( p.x, p.y );
 }
 
+GLubyte* ImpressionistDoc::GetPaintingPixel(int x, int y)
+{
+	if (x < 0)
+		x = 0;
+	else if (x >= m_nPaintWidth)
+		x = m_nPaintWidth - 1;
+
+	if (y < 0)
+		y = 0;
+	else if (y >= m_nPaintHeight)
+		y = m_nPaintHeight - 1;
+
+	return (GLubyte*)(m_ucPainting + 3 * (y * m_nPaintWidth + x));
+}
