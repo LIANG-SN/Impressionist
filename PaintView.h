@@ -47,7 +47,6 @@ public:
 	void setEventTrue() { isAnEvent = 1; }
 
 private:
-	GLvoid* m_pPaintBitstart;
 	GLvoid* m_pShowBitstart;
 	int		m_nDrawWidth,
 			m_nDrawHeight,

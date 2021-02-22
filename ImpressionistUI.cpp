@@ -236,7 +236,9 @@ void ImpressionistUI::cb_faded_slider(Fl_Widget* o, void* v)
 	pUI->fadedRate = double(((Fl_Slider*)o)->value());
 
 	pDoc->generateFadedBackground();
-	pDoc->generatemCompositeBitmap();
+	pDoc->generatemCompositeBitmap
+	
+	();
 	pUI->m_paintView->refresh();
 }
 //------------------------------------------------------------------
