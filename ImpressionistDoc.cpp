@@ -22,6 +22,7 @@
 #include "PentagramBrush.h"
 #include "BlurSharpBrush.h"
 #include "CurveBrush.h"
+#include "AlphaMappedBrush.h"
 #include <cmath>
 #include <string>
 
@@ -37,6 +38,7 @@ ImpressionistDoc::ImpressionistDoc()
 	m_ucPainting	= NULL;
 	m_anotherBitmap = NULL;
 	m_edgeBitmap = NULL;
+	m_alphaMappedBitmap = NULL;
 	m_ucPainting_prev = NULL;
 	m_fadedBackgroundBitmap = NULL;
 	m_compositeBitmap = NULL;
@@ -64,7 +66,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new BlurSharpBrush(this, "Blur or Sharpen");
 	ImpBrush::c_pBrushes[BRUSH_CURVE]
 		= new CurveBrush(this, "Curve");
-
+	ImpBrush::c_pBrushes[BRUSH_ALPHA_MAPPED]
+		= new AlphaMappedBrush(this, "Alpha Mapped");
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
 
@@ -304,6 +307,29 @@ int	ImpressionistDoc::loadMuralImage(char* iname)
 
 	return 1;
 }
+
+int	ImpressionistDoc::loadAlphaMappedImage(char* iname)
+{
+	unsigned char* data;
+
+
+	if ((data = readBMP(iname, m_alphaMapedWidth, m_alphaMappedHeight)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+
+	if (m_alphaMappedBitmap) delete[] m_alphaMappedBitmap;
+
+	m_alphaMappedBitmap = data;
+
+
+	
+
+	return 1;
+}
+
+
 //----------------------------------------------------------------
 // Save the specified image
 // This is called by the UI when the save image menu button is 
@@ -507,4 +533,20 @@ GLubyte* ImpressionistDoc::GetPaintingPixel(int x, int y)
 		y = m_nPaintHeight - 1;
 
 	return (GLubyte*)(m_ucPainting + 3 * (y * m_nPaintWidth + x));
+}
+
+
+GLubyte* ImpressionistDoc::GetAlphaMappedPixel(int x, int y)
+{
+	if (x < 0)
+		x = 0;
+	else if (x >= m_alphaMapedWidth)
+		x = m_alphaMapedWidth - 1;
+
+	if (y < 0)
+		y = 0;
+	else if (y >= m_alphaMappedHeight)
+		y = m_alphaMappedHeight - 1;
+
+	return (GLubyte*)(m_alphaMappedBitmap + 3 * (y * m_alphaMapedWidth + x));
 }

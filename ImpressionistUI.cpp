@@ -200,6 +200,16 @@ void ImpressionistUI::cb_load_edge_image(Fl_Menu_* o, void* v)
 		pDoc->loadEdgeImage(newfile);
 	}
 }
+
+void ImpressionistUI::cb_load_alpha_mapped_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadAlphaMappedImage(newfile);
+	}
+}
 void ImpressionistUI::cb_new_mural_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc* pDoc = whoami(o)->getDocument();
@@ -521,6 +531,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
 		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
 	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
+		 {"load Alpha Mapped Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_mapped_image},
 		{"New Mural Image", NULL, (Fl_Callback*)ImpressionistUI::cb_new_mural_image},
 		{"&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
@@ -559,7 +570,9 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
   {"Pentagram",			FL_ALT + 'z', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_PENTAGRAM},
   {"Blur or Sharpen",	0,			  (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_BLURORSHARPEN},
   {"Curve Brush", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_CURVE},
-  {0}
+  {"Alpha Mapped", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_ALPHA_MAPPED},
+ 
+	{0}
 };
 
 Fl_Menu_Item ImpressionistUI::lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1] = {

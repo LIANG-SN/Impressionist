@@ -21,6 +21,7 @@ enum
 	BRUSH_PENTAGRAM,
 	BRUSH_BLURORSHARPEN,
 	BRUSH_CURVE,
+	BRUSH_ALPHA_MAPPED,
 	NUM_BRUSH_TYPE // Make sure this stays at the end!
 };
 
