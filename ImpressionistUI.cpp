@@ -500,6 +500,19 @@ void ImpressionistUI::setLineWidth(int width) { m_lineWidth = width; }
 int ImpressionistUI::getLineAngle() { return m_lineAngle; }
 void ImpressionistUI::setLineAngle(int angle) { m_lineAngle = angle; }
 
+void ImpressionistUI::print(std::string s)
+{
+	int n = s.length();
+	// declaring character array
+
+	char* c = new char[n + 1];
+
+	// copying the contents of the
+	// string to char array
+	strcpy(c, s.c_str());
+
+	 m_textBuff->append(c); 
+}
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -543,6 +556,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
   {"Scattered Circles",	FL_ALT + 'd', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_CIRCLES},
   {"Pentagram",			FL_ALT + 'z', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_PENTAGRAM},
   {"Blur or Sharpen",	0,			  (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_BLURORSHARPEN},
+  {"Curve Brush", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_CURVE},
   {0}
 };
 
@@ -563,7 +577,7 @@ Fl_Menu_Item ImpressionistUI::BlurSharpChoiceMenu[NUM_BLURSHARP_BRUSH + 1] = {
 //----------------------------------------------------
 ImpressionistUI::ImpressionistUI() {
 	// Create the main window
-	m_mainWindow = new Fl_Window(600, 300, "Impressionist");
+	m_mainWindow = new Fl_Window(600, 600, "Impressionist");
 	m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 	// install menu bar
 	m_menubar = new Fl_Menu_Bar(0, 0, 600, 25);
@@ -584,6 +598,12 @@ ImpressionistUI::ImpressionistUI() {
 
 	group->end();
 	Fl_Group::current()->resizable(group); // toread
+
+	m_textBuff = new Fl_Text_Buffer();
+	m_textDisplay = new Fl_Text_Display(0, 300, 600, 300);
+	m_textDisplay->buffer(m_textBuff);
+	m_textDisplay->linenumber_format("5%d");
+	// m_textBuff->append("%d", 3);
 	m_mainWindow->end();
 
 	// init values
