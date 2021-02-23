@@ -25,8 +25,11 @@ public:
 	int		loadAnotherImage(char* iname);
 	int		loadEdgeImage(char* iname);
 	int		loadMuralImage(char* iname);
+	int		loadAlphaMappedImage(char* iname);
 
 	void	generateEdgeImage();
+
+	void	applyWeightedFilter();
 
 	void	generateFadedBackground();
 	void	generatemCompositeBitmap();
@@ -62,12 +65,16 @@ public:
 	// Dimensions of the paint window.
 	int				m_nPaintWidth, 
 					m_nPaintHeight;	
+	// Dimensions of the alpha mapped image.
+	int				m_alphaMapedWidth,
+					m_alphaMappedHeight;
 	// Bitmaps for original image and painting.
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucPainting;
 	unsigned char*  m_ucPainting_prev; // prev bitmap for undo
 	unsigned char*  m_anotherBitmap;
 	unsigned char*  m_edgeBitmap;
+	unsigned char*  m_alphaMappedBitmap;
 	unsigned char*  m_fadedBackgroundBitmap;
 	unsigned char*  m_compositeBitmap;
 	// The current active brush.
@@ -89,7 +96,7 @@ public:
 	GLubyte* GetOriginalPixel( const Point p );  
 	// Get the color of the painting picture at the specified coord
 	GLubyte* GetPaintingPixel(int x, int y);
-
+	GLubyte* GetAlphaMappedPixel(int x, int y);
 
 private:
 	char			m_imageName[256];

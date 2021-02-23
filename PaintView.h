@@ -59,7 +59,6 @@ public:
 	void paintLayer(int R, int T);
 
 private:
-	GLvoid* m_pPaintBitstart;
 	GLvoid* m_pShowBitstart;
 	int		m_nDrawWidth,
 			m_nDrawHeight,

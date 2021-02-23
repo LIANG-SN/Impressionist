@@ -8,9 +8,11 @@
 #include <FL/fl_ask.h>
 
 #include <math.h>
+#include <iostream>
 
 #include "impressionistUI.h"
 #include "impressionistDoc.h"
+
 
 /*
 //------------------------------ Widget Examples -------------------------------------------------
@@ -200,6 +202,16 @@ void ImpressionistUI::cb_load_edge_image(Fl_Menu_* o, void* v)
 		pDoc->loadEdgeImage(newfile);
 	}
 }
+
+void ImpressionistUI::cb_load_alpha_mapped_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadAlphaMappedImage(newfile);
+	}
+}
 void ImpressionistUI::cb_new_mural_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc* pDoc = whoami(o)->getDocument();
@@ -236,8 +248,114 @@ void ImpressionistUI::cb_faded_slider(Fl_Widget* o, void* v)
 	pUI->fadedRate = double(((Fl_Slider*)o)->value());
 
 	pDoc->generateFadedBackground();
-	pDoc->generatemCompositeBitmap();
+	pDoc->generatemCompositeBitmap
+	
+	();
 	pUI->m_paintView->refresh();
+}
+
+void ImpressionistUI::cb_filter_kernel_design_window(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_filterKernelDesignWindow->show();
+}
+
+int convert_to_int(const char* a) 
+{
+	int l = strlen(a);
+	int r = 0;
+	for (int i = 0; i < l; i++)
+	{
+		r += (a[i] - '0') * pow(10.0, (l - i - 1) * 1.0);
+	}
+	return r;
+}
+
+double convert_to_double(const char* a, int l)
+{
+	int dot = 0;
+	for (dot; dot < l; dot++)
+	{
+		if (a[dot] == '.')
+		{
+			break;
+		}
+	}
+
+	double r = 0.0;
+	for (int i = 0; i < dot; i++)
+	{
+		r += (a[i] - '0') * pow(10.0, (dot - i - 1) * 1.0);
+	}
+	for (int i = dot + 1; i < l; i++)
+	{
+		r += (a[i] - '0') * pow(10.0, -(i - dot) * 1.0) * 1.0;
+	}
+
+	return r;
+}
+
+void ImpressionistUI::cb_filter_size_input(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pDoc = ((ImpressionistUI*)(o->user_data()));
+	const char* temp = (((Fl_Int_Input*)o)->value());
+	int r = convert_to_int(temp);
+	if (r % 2 == 0)
+	{
+		fl_alert("Filter size must be odd!");
+		return;
+	}
+	pDoc->filterSize = r;
+}
+
+void ImpressionistUI::cb_filter_weight_input(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pDoc = ((ImpressionistUI*)(o->user_data()));
+	const char* temp = (((Fl_Input*)o)->value());
+
+	int space_count = 0;
+	for (int i = 0; i < strlen(temp); i++)
+	{
+		if (temp[i] == ' ')
+			space_count++;
+	}
+
+	if (space_count != pDoc->filterSize * pDoc->filterSize - 1)
+	{
+		fl_alert("Number of weight does not fit filter size!");
+		return;
+	}
+
+	if (pDoc->filterWeight) delete[] pDoc->filterWeight;
+
+	pDoc->filterWeight = new double[pDoc->filterSize * pDoc->filterSize];
+
+	int count = 0;
+	for (int i = 0; i < strlen(temp); i++)
+	{
+		int start = i;
+		int end = i;
+		for (i; temp[i] != ' ' && i < strlen(temp); i++, end++);
+
+		std::cout << start;
+		pDoc->filterWeight[count] = convert_to_double(temp + start, end - start);
+		count++;
+	}
+
+}
+
+void ImpressionistUI::cb_filter_apply(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+
+	pDoc->applyWeightedFilter();
+	pUI->m_paintView->refresh();
+
+}
+
+void ImpressionistUI::cb_filter_normalized(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->normalized = bool(((Fl_Check_Button*)o)->value());
 }
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
@@ -621,9 +739,9 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
 		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
 	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
+		 {"load Alpha Mapped Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_mapped_image},
 		{"New Mural Image", NULL, (Fl_Callback*)ImpressionistUI::cb_new_mural_image},
 		{"&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
-		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
 		// devide
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback*)ImpressionistUI::cb_exit },
@@ -642,6 +760,8 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	    { "Multiresolution", NULL, (Fl_Callback*)ImpressionistUI::cb_multiResolution},
 		{ "Paintly", NULL, (Fl_Callback*)ImpressionistUI::cb_paintly},
 	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
+		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
+		{"&Filter Kernel Design...", NULL, (Fl_Callback*)ImpressionistUI::cb_filter_kernel_design_window},
 		{0},
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
 		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
@@ -661,7 +781,9 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
   {"Pentagram",			FL_ALT + 'z', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_PENTAGRAM},
   {"Blur or Sharpen",	0,			  (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_BLURORSHARPEN},
   {"Curve Brush", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_CURVE},
-  {0}
+  {"Alpha Mapped", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_ALPHA_MAPPED},
+ 
+	{0}
 };
 
 Fl_Menu_Item ImpressionistUI::lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1] = {
@@ -963,4 +1085,26 @@ ImpressionistUI::ImpressionistUI() {
 	m_layerRatioSlider->callback(cb_layerRatioSlider);
 
 	m_paintlyDialog->end();
+
+	m_filterKernelDesignWindow = new Fl_Window(300, 230, "Color Chooser");
+	m_filterKernelDesignWindow->user_data((void*)(this));
+
+	m_filterSizeInput = new Fl_Int_Input(100, 10, 50, 30,"Filter Size");
+	m_filterSizeInput->user_data((void*)(this));
+	m_filterSizeInput->callback(cb_filter_size_input);
+
+	m_filterWeightInput = new Fl_Input(100, 40, 180, 30, "Weight (split \nwith space)");
+	m_filterWeightInput->user_data((void*)(this));
+	m_filterWeightInput->callback(cb_filter_weight_input);
+
+	m_filter_normalize_check_button = new Fl_Check_Button(10, 70, 150, 25, "Normalized");
+	m_filter_normalize_check_button->value(normalized);
+	m_filter_normalize_check_button->user_data((void*)(this));
+	m_filter_normalize_check_button->callback(cb_filter_normalized);
+
+	m_filter_apply_button = new Fl_Button(200, 70, 80, 20, "&Apply");
+	m_filter_apply_button->user_data((void*)(this));
+	m_filter_apply_button->callback(cb_filter_apply);
+
+	m_filterKernelDesignWindow->end();
 }
