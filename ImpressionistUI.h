@@ -17,6 +17,8 @@
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Color_Chooser.H>
 #include <FL/FL_Text_Display.H>
+#include <FL/Fl_Int_Input.H>
+#include <FL/Fl_Input.H>
 
 #include "Impressionist.h"
 #include "OriginalView.h"
@@ -38,6 +40,7 @@ public:
 
 	Fl_Window* m_fadedBackgroundWindow;
 	Fl_Slider* m_fadeInSlider;
+
 
 	// for brush dialog
 	Fl_Window* m_brushDialog;
@@ -63,6 +66,11 @@ public:
 	Fl_Text_Buffer* m_textBuff;
 	Fl_Text_Display* m_textDisplay;
 
+	Fl_Window*			m_filterKernelDesignWindow;
+	Fl_Int_Input*		m_filterSizeInput;
+	Fl_Input*			m_filterWeightInput;
+	Fl_Button*			m_filter_apply_button;
+	Fl_Check_Button*	m_filter_normalize_check_button;
 
 	// Member functions
 	void			setDocument(ImpressionistDoc* doc);
@@ -91,6 +99,9 @@ public:
 	int					getMaxStrokeLength() { return maxStrokeLength; };
 	int					getMinStrokeLength() { return minStrokeLength; };
 	float				getCurveFilter() { return curveFilter; };
+	int					getFilterSize() { return filterSize; };
+	double*				getFilterWeight() { return filterWeight; };
+	bool				getNormalized() { return normalized; };
 	void				print(std::string s);
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
@@ -107,7 +118,11 @@ private:
 	double  fadedRate{ 0.00 };
 	int		maxStrokeLength{ 30 };
 	int		minStrokeLength{ 1 };
-	float     curveFilter{ 1 };
+	float   curveFilter{ 1 };
+	int		filterSize{ 1 };
+	double*	filterWeight=NULL;
+	bool	normalized{ 1 };
+	//const char* 
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -126,9 +141,17 @@ private:
 	static void cb_new_mural_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_dissolve_image(Fl_Menu_* o, void* v);
+	static void	cb_brushes(Fl_Menu_* o, void* v);
 	static void cb_faded_background_window(Fl_Menu_* o, void* v);
 	static void cb_faded_slider(Fl_Widget* o, void* v);
-	static void	cb_brushes(Fl_Menu_* o, void* v);
+
+	static void cb_filter_kernel_design_window(Fl_Menu_* o, void* v);
+	static void cb_filter_size_input(Fl_Widget* o, void* v);
+	static void cb_filter_weight_input(Fl_Widget* o, void* v);
+	static void cb_filter_apply(Fl_Widget* o, void* v);
+	static void cb_filter_normalized(Fl_Widget* o, void* v);
+
+
 	static void	cb_clear_canvas(Fl_Menu_* o, void* v);
 	static void	cb_exit(Fl_Menu_* o, void* v);
 	static void	cb_about(Fl_Menu_* o, void* v);
@@ -150,7 +173,7 @@ private:
 	static void cb_colorChooser(Fl_Widget* o, void* v);
 	static void cb_edgeThresholdSlider(Fl_Widget* o, void* v);
 	static void cb_edgePaintingButton(Fl_Widget* o, void* v);
-	
+
 };
 
 #endif

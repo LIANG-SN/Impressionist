@@ -12,7 +12,6 @@
 #include <string.h>
 
 #define BMP_BI_RGB				0L
-#define BMP_BI_ALPHABITFIELDS   6L
 
 typedef unsigned short	BMP_WORD; 
 typedef unsigned int	BMP_DWORD; 

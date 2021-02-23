@@ -366,6 +366,50 @@ void ImpressionistDoc::generateEdgeImage()
 
 }
 
+void ImpressionistDoc::applyWeightedFilter()
+{
+	confirmLastModify();
+	if (m_ucPainting) delete[] m_ucPainting;
+	m_ucPainting = new unsigned char [m_nHeight * m_nWidth * 3];
+
+	int size = m_pUI->getFilterSize();
+	double* weight = m_pUI->getFilterWeight();
+
+	for (int y = 0; y < m_nHeight; y++)
+	{
+		for (int x = 0; x < m_nWidth; x++)
+		{
+
+			int count = 0;
+			int color[3]{ 0,0,0 };
+			for (int i = -size / 2; i <= size / 2; i++)
+			{
+				for (int j = -size / 2; j <= size / 2; j++)
+				{
+					GLubyte* origin_pixel = GetOriginalPixel(x + j, y + i);
+					for (int t = 0; t < 3; t++)
+					{
+						color[t] += origin_pixel[t] * weight[count];
+					}
+					count++;
+				}
+			}
+
+
+			for (int t = 0; t < 3; t++)
+			{
+				if (m_pUI->getNormalized())
+					color[t] = color[t] / (size * size);
+				if (color[t] > 255)
+					*(m_ucPainting + 3 * (y * m_nWidth + x) + t) = 255;
+				else
+					*(m_ucPainting + 3 * (y * m_nWidth + x) + t) = color[t];
+			}
+		}
+	}
+
+}
+
 void ImpressionistDoc::generateFadedBackground()
 {
 	if (!m_ucBitmap) return;

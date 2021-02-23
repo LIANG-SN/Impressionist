@@ -29,6 +29,8 @@ public:
 
 	void	generateEdgeImage();
 
+	void	applyWeightedFilter();
+
 	void	generateFadedBackground();
 	void	generatemCompositeBitmap();
 
