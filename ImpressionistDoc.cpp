@@ -67,6 +67,7 @@ ImpressionistDoc::ImpressionistDoc()
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
+	m_pPaintlyBrush = ImpBrush::c_pBrushes[0];
 
 }
 
@@ -95,7 +96,10 @@ void ImpressionistDoc::setBrushType(int type)
 {
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[type];
 }
-
+void ImpressionistDoc::setPaintlyBrush(int type)
+{
+	m_pPaintlyBrush = ImpBrush::c_pBrushes[type];
+}
 void ImpressionistDoc::setLineDirectionChoice(int choice)
 {
 	ImpBrush::lineDirectionChoice = choice;
@@ -166,9 +170,6 @@ int ImpressionistDoc::getGradientOfPoint(const int x, const int y, int& Gx, int&
 			Gy += sobel_x[b + 1][a + 1] * pixelValue;
 		}
 	}
-	// debug
-	std::string debug = "Gx: " + std::to_string(Gx) + "\n";
-	m_pUI->print(debug);
 	return int(sqrt(Gx * Gx + Gy * Gy));
 }
 

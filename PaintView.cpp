@@ -9,9 +9,11 @@
 #include "impressionistUI.h"
 #include "paintview.h"
 #include "ImpBrush.h"
+#include "CurveBrush.h"
 #include <cmath>
 #include <algorithm>
-
+#include <vector>
+#include <iostream>
 #ifndef WIN32
 #define min(a, b)	( ( (a)<(b) ) ? (a) : (b) )
 #define max(a, b)	( ( (a)>(b) ) ? (a) : (b) )
@@ -171,12 +173,63 @@ void PaintView::draw()
 			RestoreContent();
 		}
 		break;
+		case PAINTLY:
+		{
+			m_pDoc->setPaintlyBrush(BRUSH_CURVE);
+			// set canvas to a special color first
+			memset(m_pDoc->m_ucPainting, 255, m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3);
+			SaveCurrentContent();
+			RestoreContent();
+
+			using namespace std;
+			vector<int> R;
+			R.push_back(0); // take space for front detect
+			int ratio = m_pDoc->m_pUI->getLayerRatio();
+			int R1 = m_pDoc->m_pUI->getPaintlyPrecision();
+			R.push_back(R1);
+			for (int i = 1; i < m_pDoc->m_pUI->getLayer(); i++)
+			{
+				R1 *= ratio;
+				R.push_back(R1);
+			}
+			
+			for (vector<int>::iterator p = R.end() - 1; p != R.begin(); p--)
+			{
+				paintLayer(*p, m_pDoc->m_pUI->getPaintlyThresh());
+			}
+			break;
+		}
+		case MULTIRESOLUTION:
+		{
+			m_pDoc->setPaintlyBrush(BRUSH_POINTS);
+			// set canvas to a special color first
+			memset(m_pDoc->m_ucPainting, 255, m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3);
+			SaveCurrentContent();
+			RestoreContent();
+
+			using namespace std;
+			vector<int> R;
+			R.push_back(0); // take space for front detect
+			int ratio = 2;
+			int R1 = 1;
+			R.push_back(R1);
+			for (int i = 1; i < 5; i++)
+			{
+				R1 *= ratio;
+				R.push_back(R1);
+			}
+
+			for (vector<int>::iterator p = R.end() - 1; p != R.begin(); p--)
+			{
+				paintLayer(*p, 7);
+			}
+			break;
+		}
 		default:
 			printf("Unknown event!!\n");
 			break;
 		}
 	}
-
 	glFlush();
 
 #ifndef MESA
@@ -261,6 +314,92 @@ int PaintView::handle(int event)
 	return 1;
 }
 
+void PaintView::paintLayer(int R, int T)
+{
+	using namespace std;
+	vector<Point> strokes;
+
+	vector<vector<int>> filtered;
+	vector<vector<int>> diff;
+	for (int row = 0; row < m_nDrawHeight; row++)
+	{
+		vector<int> rowV, diffV;
+		filtered.push_back(rowV);
+		diff.push_back(diffV);
+		cout << "debug" << endl;
+		for (int col = 0; col < m_nDrawWidth; col++)
+		{
+			GLubyte* origin = m_pDoc->GetOriginalPixel(col, row);
+			filtered[row].push_back( 0.299 * (*origin) + 0.587 * (*(origin + 1))
+				+ 0.114 * (*(origin + 2)) );
+			GLubyte* paintingPix = m_pDoc->GetPaintingPixel(col, row);
+			int painting = 0.299 * (*paintingPix) + 0.587 * (*(paintingPix + 1))
+				+ 0.114 * (*(paintingPix + 2));
+			diff[row].push_back(  abs(filtered[row][col] - painting) );
+		}
+	}
+	float fg = m_pDoc->m_pUI->getPaintlyGridSize();
+	int grid = fg * R;
+	
+	for (int row = 0; row < m_nDrawHeight; row += grid)
+	{
+		for (int col = 0; col < m_nDrawWidth; col += grid)
+		{
+			// sum the error in this grid
+			int  errorSum = 0;
+			vector<vector<int>> error;
+			for (int i = 0; i <= grid; i++)
+			{
+				vector<int> eV;
+				error.push_back(eV);
+				for (int j = 0; j <= grid; j++)
+				{
+					if (row - grid / 2 + i >= 0 && row - grid / 2 + i < m_nDrawHeight
+						&& col - grid / 2 + j >= 0 && col - grid / 2 + j < m_nDrawWidth)
+					{
+						error[i].push_back(diff[row - grid / 2 + i][col - grid / 2 + j]);
+						errorSum += diff[row - grid / 2 + i][col - grid / 2 + j];
+					}
+					else
+						error[i].push_back(0);
+
+				}
+			}
+			if (errorSum >= T)
+			{
+				int x, y, e = 0;
+				// find the argument(position) of max error
+				for (int i = 0; i < grid; i++)
+				{
+					vector<int>::iterator p = max_element(error[i].begin(), error[i].end());
+					if (e < *p)
+					{
+						e = *p;
+						x = p - error[i].begin() + col - grid / 2;
+						y = i + row - grid / 2;
+						
+					}
+				}
+				strokes.push_back({ x, y });
+			}
+		}
+	}
+	// random
+	random_shuffle(strokes.begin(), strokes.end());
+	m_pDoc->m_pUI->setSize(R * 2);
+	// match the window
+						//Point s(x + m_nStartCol, m_nEndRow - y);//original view
+						//Point t(x, m_nWindowHeight - y);// paint view
+	m_pDoc->m_pPaintlyBrush->BrushBegin({ strokes[0].x + m_nStartCol, m_nEndRow - strokes[0].y }, 
+		{ strokes[0].x, m_nWindowHeight - strokes[0].y });
+	for (vector<Point>::iterator p = strokes.begin() + 1; p != strokes.end(); p++)
+	{
+		m_pDoc->m_pPaintlyBrush->BrushMove({ p->x + m_nStartCol, m_nEndRow - p->y }, { p->x, m_nWindowHeight - p->y });
+	}
+	m_pDoc->m_pPaintlyBrush->BrushEnd({ m_nStartCol, m_nEndRow }, { 0, m_nWindowHeight });
+	SaveCurrentContent();
+	RestoreContent();
+}
 void PaintView::refresh()
 {
 	redraw(); // ask fltk to call draw()

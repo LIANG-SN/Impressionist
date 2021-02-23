@@ -386,6 +386,10 @@ void ImpressionistUI::cb_auto_paint(Fl_Menu_* o, void* v)
 	whoami(o)->m_paintView->setEventTrue();
 	whoami(o)->m_paintView->refresh();
 }
+void ImpressionistUI::cb_paintly(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_paintlyDialog->show();
+}
 void ImpressionistUI::cb_show_image_choice(Fl_Menu_* o, void* v)
 {
 	int choice = (int)v;
@@ -433,9 +437,78 @@ void ImpressionistUI::cb_edgePaintingButton(Fl_Widget* o, void* v)
 	
 }
 
+void ImpressionistUI::cb_paintlyThresholdSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->paintlyThresh = int(((Fl_Slider*)o)->value());
+}
+void ImpressionistUI::cb_minStrokeSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->minStrokeLength = int(((Fl_Slider*)o)->value());
+}
+void ImpressionistUI::cb_maxStrokeSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->maxStrokeLength = int(((Fl_Slider*)o)->value());
+}
+void ImpressionistUI::cb_layerSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->layer = int(((Fl_Slider*)o)->value());
+}
+void ImpressionistUI::cb_precisionSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->paintlyPrecision = int(((Fl_Slider*)o)->value());
+}
+// todo : add style choice
+void ImpressionistUI::cb_layerRatioSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->layerRatio = int(((Fl_Slider*)o)->value());
+}
+void ImpressionistUI::cb_paintlyDraw(Fl_Widget* o, void* v)
+{
+	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+	pDoc->m_pUI->m_paintView->setEventType(PAINTLY);
+	pDoc->m_pUI->m_paintView->setEventTrue();
+	pDoc->m_pUI->m_paintView->refresh();
+}
+void ImpressionistUI::cb_styleChoice(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	int style = (int)v;
+	switch (style)
+	{
+	case IMPRESSIONIST:
+		pUI->setPaintlyThresh(10);
+		pUI->setMaxStrokeLength(30);
+		pUI->setMinStrokeLength(4);
+		pUI->setLayer(5);
+		pUI->setPaintlyPrecision(1);
+		pUI->setLayerRatio(2);
+		break;
+	case EXPRESSIONIST:
+		pUI->setPaintlyThresh(4);
+		pUI->setMaxStrokeLength(50);
+		pUI->setMinStrokeLength(30);
+		pUI->setLayer(5);
+		pUI->setPaintlyPrecision(1);
+		pUI->setLayerRatio(2);
+		break;
+	case POINTILIST:
+		pUI->setPaintlyThresh(8);
+		pUI->setMaxStrokeLength(0);
+		pUI->setMinStrokeLength(0);
+		pUI->setLayer(4);
+		pUI->setPaintlyPrecision(2);
+		pUI->setLayerRatio(2);
+		break;
+	}
 
+}
 
-
+void ImpressionistUI::cb_multiResolution(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_paintView->setEventType(MULTIRESOLUTION);
+	whoami(o)->m_paintView->setEventTrue();
+	whoami(o)->m_paintView->refresh();
+}
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -499,7 +572,36 @@ int ImpressionistUI::getLineWidth() { return m_lineWidth; }
 void ImpressionistUI::setLineWidth(int width) { m_lineWidth = width; }
 int ImpressionistUI::getLineAngle() { return m_lineAngle; }
 void ImpressionistUI::setLineAngle(int angle) { m_lineAngle = angle; }
-
+void  ImpressionistUI::setMaxStrokeLength(int length) 
+{ 
+	maxStrokeLength = length;
+	m_maxStrokeSlider->value(length);
+};
+void  ImpressionistUI::setMinStrokeLength(int length) 
+{
+	minStrokeLength = length;
+	m_minStrokeSlider->value(length);
+};
+void  ImpressionistUI::setPaintlyThresh(int T)
+{
+	paintlyThresh = T;
+	m_paintlyThresholdSlider->value(T);
+};
+void  ImpressionistUI::setLayer(int N)
+{
+	layer = N;
+	m_layerSlider->value(N);
+}
+void  ImpressionistUI::setPaintlyPrecision(int N)
+{
+	paintlyPrecision = N;
+	m_precisionSlider->value(N);
+}
+void  ImpressionistUI::setLayerRatio(int R)
+{
+	layerRatio = R;
+	m_layerRatioSlider->value(R);
+}
 void ImpressionistUI::print(std::string s)
 {
 	int n = s.length();
@@ -535,8 +637,10 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushes },
 		{ "&Colors...", FL_ALT + 'w', (Fl_Callback*)ImpressionistUI::cb_colorChooserWindow, 0, FL_MENU_DIVIDER },
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback*)ImpressionistUI::cb_clear_canvas},
-		{  "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
+		{ "&Swap Canvas", NULL, (Fl_Callback*)ImpressionistUI::cb_swapOriginPaint},
 		{ "Auto paint", NULL, (Fl_Callback*)ImpressionistUI::cb_auto_paint},
+	    { "Multiresolution", NULL, (Fl_Callback*)ImpressionistUI::cb_multiResolution},
+		{ "Paintly", NULL, (Fl_Callback*)ImpressionistUI::cb_paintly},
 	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
 		{0},
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
@@ -570,6 +674,11 @@ Fl_Menu_Item ImpressionistUI::lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1] = 
 Fl_Menu_Item ImpressionistUI::BlurSharpChoiceMenu[NUM_BLURSHARP_BRUSH + 1] = {
 	{"Blurring", 0, (Fl_Callback*)ImpressionistUI::cb_BlurSharpChoice, (void*)SLIDER_RIGHT_CLICK},
 	{"Sharpening", 0, (Fl_Callback*)ImpressionistUI::cb_BlurSharpChoice, (void*)GRADIENT},
+};
+Fl_Menu_Item ImpressionistUI::styleMenu[NUM_STYLE] = {
+	{"Impressionist", 0, (Fl_Callback*)ImpressionistUI::cb_styleChoice, (void*)IMPRESSIONIST},
+	{"Expresionist", 0, (Fl_Callback*)ImpressionistUI::cb_styleChoice, (void*)EXPRESSIONIST},
+	{"POINTILIST", 0, (Fl_Callback*)ImpressionistUI::cb_styleChoice, (void*)POINTILIST},
 };
 //----------------------------------------------------
 // Constructor.  Creates all of the widgets.
@@ -760,4 +869,98 @@ ImpressionistUI::ImpressionistUI() {
 	m_fadeInSlider->callback(cb_faded_slider);
 
 	m_fadedBackgroundWindow->end();
+
+	// paintly dialog
+	m_paintlyDialog = new Fl_Window(400, 325, "Paintly Dialog");
+	
+	// Add style choice
+	m_styleChoice = new Fl_Choice(50, 10, 150, 25, "Style");
+	m_styleChoice->user_data((void*)(this));	// record self to be used by static callback functions
+	m_styleChoice->menu(styleMenu);
+	m_styleChoice->callback(cb_styleChoice);
+
+	// Draw button
+	m_paintlyDrawButton = new Fl_Button(240, 10, 150, 25, "Draw");
+	m_paintlyDrawButton->user_data((void*)(this));
+	m_paintlyDrawButton->callback(cb_paintlyDraw);
+
+	// Add threshold slider to the dialog 
+	m_paintlyThresholdSlider = new Fl_Value_Slider(10, 80, 300, 20, "Thrshold");
+	m_paintlyThresholdSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_paintlyThresholdSlider->type(FL_HOR_NICE_SLIDER);
+	m_paintlyThresholdSlider->labelfont(FL_COURIER);
+	m_paintlyThresholdSlider->labelsize(12);
+	m_paintlyThresholdSlider->minimum(0);
+	m_paintlyThresholdSlider->maximum(200);
+	m_paintlyThresholdSlider->step(2);
+	m_paintlyThresholdSlider->value(paintlyThresh);
+	m_paintlyThresholdSlider->align(FL_ALIGN_RIGHT);
+	m_paintlyThresholdSlider->callback(cb_paintlyThresholdSlider);
+
+	// add min stroke
+	m_minStrokeSlider = new Fl_Value_Slider(10, 110, 300, 20, "Min Stroke");
+	m_minStrokeSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_minStrokeSlider->type(FL_HOR_NICE_SLIDER);
+	m_minStrokeSlider->labelfont(FL_COURIER);
+	m_minStrokeSlider->labelsize(12);
+	m_minStrokeSlider->minimum(1);
+	m_minStrokeSlider->maximum(50);
+	m_minStrokeSlider->step(1);
+	m_minStrokeSlider->value(minStrokeLength);
+	m_minStrokeSlider->align(FL_ALIGN_RIGHT);
+	m_minStrokeSlider->callback(cb_minStrokeSlider);
+
+	// add max stroke
+	m_maxStrokeSlider = new Fl_Value_Slider(10, 140, 300, 20, "Max stroke");
+	m_maxStrokeSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_maxStrokeSlider->type(FL_HOR_NICE_SLIDER);
+	m_maxStrokeSlider->labelfont(FL_COURIER);
+	m_maxStrokeSlider->labelsize(12);
+	m_maxStrokeSlider->minimum(1);
+	m_maxStrokeSlider->maximum(50);
+	m_maxStrokeSlider->step(1);
+	m_maxStrokeSlider->value(maxStrokeLength);
+	m_maxStrokeSlider->align(FL_ALIGN_RIGHT);
+	m_maxStrokeSlider->callback(cb_maxStrokeSlider);
+
+	// add layer slider
+	m_layerSlider = new Fl_Value_Slider(10, 170, 300, 20, "#Layer");
+	m_layerSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_layerSlider->type(FL_HOR_NICE_SLIDER);
+	m_layerSlider->labelfont(FL_COURIER);
+	m_layerSlider->labelsize(12);
+	m_layerSlider->minimum(1);
+	m_layerSlider->maximum(6);
+	m_layerSlider->step(1);
+	m_layerSlider->value(layer);
+	m_layerSlider->align(FL_ALIGN_RIGHT);
+	m_layerSlider->callback(cb_layerSlider);
+
+	// add precision 
+	m_precisionSlider = new Fl_Value_Slider(10, 200, 200, 20, "Precision(min brush size)");
+	m_precisionSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_precisionSlider->type(FL_HOR_NICE_SLIDER);
+	m_precisionSlider->labelfont(FL_COURIER);
+	m_precisionSlider->labelsize(12);
+	m_precisionSlider->minimum(1);
+	m_precisionSlider->maximum(4);
+	m_precisionSlider->step(1);
+	m_precisionSlider->value(paintlyPrecision);
+	m_precisionSlider->align(FL_ALIGN_RIGHT);
+	m_precisionSlider->callback(cb_precisionSlider);
+
+	// add layer ratio
+	m_layerRatioSlider = new Fl_Value_Slider(10, 230, 300, 20, "Layer ratio");
+	m_layerRatioSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_layerRatioSlider->type(FL_HOR_NICE_SLIDER);
+	m_layerRatioSlider->labelfont(FL_COURIER);
+	m_layerRatioSlider->labelsize(12);
+	m_layerRatioSlider->minimum(2);
+	m_layerRatioSlider->maximum(4);
+	m_layerRatioSlider->step(1);
+	m_layerRatioSlider->value(layerRatio);
+	m_layerRatioSlider->align(FL_ALIGN_RIGHT);
+	m_layerRatioSlider->callback(cb_layerRatioSlider);
+
+	m_paintlyDialog->end();
 }

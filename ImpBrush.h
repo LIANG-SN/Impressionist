@@ -59,7 +59,7 @@ protected:
 
 public:
 	// The implementation of your brush should realize these virtual functions
-	virtual void BrushBegin( const Point source, const Point target ) = 0;
+	virtual void BrushBegin( const Point source, const Point target) = 0;
 	virtual void BrushMove( const Point source, const Point target ) = 0;
 	virtual void BrushEnd( const Point source, const Point target ) = 0;
 

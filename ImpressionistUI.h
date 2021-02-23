@@ -60,9 +60,22 @@ public:
 	Fl_Slider* m_SharpThresholdSlider;
 	Fl_Button* m_DrawEdgeButton;
 
+	// text window
 	Fl_Text_Buffer* m_textBuff;
 	Fl_Text_Display* m_textDisplay;
 
+	// paintly Dialog
+	Fl_Window* m_paintlyDialog;
+	Fl_Choice* m_styleChoice;
+
+	Fl_Button* m_paintlyDrawButton;
+
+	Fl_Slider* m_paintlyThresholdSlider;
+	Fl_Slider* m_minStrokeSlider;
+	Fl_Slider* m_maxStrokeSlider;
+	Fl_Slider* m_layerSlider;
+	Fl_Slider* m_precisionSlider;
+	Fl_Slider* m_layerRatioSlider;
 
 	// Member functions
 	void			setDocument(ImpressionistDoc* doc);
@@ -71,6 +84,7 @@ public:
 	void				show();
 	void				resize_windows(int w, int h);
 
+	void				print(std::string s);
 	// Interface to get attribute
 
 	int					getSize();
@@ -80,7 +94,7 @@ public:
 	int					getLineAngle();
 	void 				setLineAngle(int angle);
 	double				getAlpha() { return alpha; }
-	void				setAlpha(double alpha) { this->alpha = alpha; }
+	void				setAlpha(double alpha) { this->alpha = alpha;  }
 	bool				getEdgeClipping() { return m_edgeClipping; }
 	double				getRed() { return colors[0]; };
 	double				getGreen() { return colors[1]; };
@@ -88,11 +102,24 @@ public:
 	int					getLevel() { return level; };
 	int					getThreshold() { return threshold; };
 	double				getFadedRate() { return fadedRate; };
+	// paintly params
 	int					getMaxStrokeLength() { return maxStrokeLength; };
 	int					getMinStrokeLength() { return minStrokeLength; };
 	float				getCurveFilter() { return curveFilter; };
-	void				print(std::string s);
-private:
+	float				getPaintlyGridSize() { return paintlyGridSize; };
+	float				getBlurFactor() { return blurFactor; };
+	int					getPaintlyThresh() { return paintlyThresh; };
+	int					getLayer() { return layer; };
+	int					getPaintlyPrecision() { return paintlyPrecision; };
+	int					getLayerRatio() { return layerRatio; };
+
+	void				setMaxStrokeLength(int length);
+	void				setMinStrokeLength(int length);
+	void				setPaintlyThresh(int T);
+	void				setLayer(int N);
+	void				setPaintlyPrecision(int N);
+	void				setLayerRatio(int R);
+ private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
 
 	// All attributes here (attributes of the brush)
@@ -105,15 +132,23 @@ private:
 	int		level{ 1 };
 	int		threshold{ 100 };
 	double  fadedRate{ 0.00 };
-	int		maxStrokeLength{ 30 };
-	int		minStrokeLength{ 1 };
+	// paintly params
+	int		maxStrokeLength{ 16 };
+	int		minStrokeLength{ 2 };
 	float     curveFilter{ 1 };
+	float   paintlyGridSize{ 1 };
+	float   blurFactor{ 1 };
+	int     paintlyThresh{ 8 };
+	int		layer{ 5 };
+	int		paintlyPrecision{ 1 };
+	int		layerRatio{ 2 };
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
 	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE + 1];
 	static Fl_Menu_Item		lineDirectionChoiceMenu[NUM_DIRECTION_TYPE + 1];
 	static Fl_Menu_Item		BlurSharpChoiceMenu[NUM_BLURSHARP_BRUSH + 1];
+	static Fl_Menu_Item		styleMenu[NUM_STYLE];
 
 	static ImpressionistUI* whoami(Fl_Menu_* o);
 
@@ -143,13 +178,25 @@ private:
 	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
 	static void cb_auto_paint(Fl_Menu_* o, void* v);
+	static void cb_paintly(Fl_Menu_* o, void* v);
 	static void cb_show_image_choice(Fl_Menu_* o, void* v);
 	static void	cb_edge_clip(Fl_Widget* o, void* v);
 	static void cb_colorChooserWindow(Fl_Menu_* o, void* v);
 	static void cb_colorChooser(Fl_Widget* o, void* v);
 	static void cb_edgeThresholdSlider(Fl_Widget* o, void* v);
 	static void cb_edgePaintingButton(Fl_Widget* o, void* v);
+	static void cb_multiResolution(Fl_Menu_* o, void* v);
 	
+	// paintly
+	static void cb_paintlyThresholdSlider(Fl_Widget* o, void* v);
+	static void cb_minStrokeSlider(Fl_Widget* o, void* v);
+	static void cb_maxStrokeSlider(Fl_Widget* o, void* v);
+	static void cb_layerSlider(Fl_Widget* o, void* v);
+	static void cb_precisionSlider(Fl_Widget* o, void* v);
+	static void cb_styleChoice(Fl_Widget* o, void* v);
+	static void cb_layerRatioSlider(Fl_Widget* o, void* v);
+	static void cb_paintlyDraw(Fl_Widget* o, void* v);
+
 };
 
 #endif

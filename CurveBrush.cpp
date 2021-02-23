@@ -23,10 +23,9 @@ void CurveBrush::BrushBegin(const Point source, const Point target)
 {
 	ImpressionistDoc* pDoc = GetDocument();
 	ImpressionistUI* dlg = pDoc->m_pUI;
-
-	int size = pDoc->getSize();
-	glPointSize(size);
-
+	
+	int s = pDoc->getSize() / 2;
+		glPointSize(s);
 	
 	BrushMove(source, target);
 }
@@ -43,7 +42,7 @@ void CurveBrush::BrushMove(const Point source, const Point target)
 		return;
 	}
 
-	float radius = (float)pDoc->getSize() / 2;
+	float radius = (float)pDoc->getSize() / 2; // adjust precision
 	glBegin(GL_POINTS);
 	SetColor(source);
 	glVertex2d(target.x, target.y);
@@ -51,6 +50,7 @@ void CurveBrush::BrushMove(const Point source, const Point target)
 	double lastDx = 0, lastDy = 0;
 	GLubyte* startPix = pDoc->GetOriginalPixel(source);
 	int brushValue = 0.299 * startPix[0] + 0.587 * startPix[1] + 0.114 * startPix[2];
+	float fc = pDoc->m_pUI->getCurveFilter();
 	for (int i = 1; i <= pDoc->m_pUI->getMaxStrokeLength(); i++)
 	{
 		int Gx = 0, Gy = 0;
@@ -65,17 +65,18 @@ void CurveBrush::BrushMove(const Point source, const Point target)
 			break;
 		if (gradientMag == 0)
 			break;
-		double dx = -Gy, dy = Gx;
+		double dx = Gx, dy = Gy;
+		//double dx = -Gy, dy = Gx;
 		if (lastDx * dx + lastDy * dy < 0)
 		{
 			dx *= -1; dy *= -1;
 		}
-		float fc = pDoc->m_pUI->getCurveFilter();
 		dx = fc * dx + (1 - fc) * lastDx;  dy = fc * dy + (1 - fc) * lastDy;
 		dx /= sqrt(dx * dx + dy * dy); dy /= sqrt(dx * dx + dy * dy); // normalize
 		x += (int)(radius * dx); y += (int)(radius * dy);
 		lastDx = dx; lastDy = dy;
 
+		glVertex2d(x + radius * dx * 0.5, y + radius * dy * 0.5);
 		glVertex2d(x, y);
 	}
 	glEnd();

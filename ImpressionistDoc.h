@@ -33,6 +33,7 @@ public:
 
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
 	void	setBrushType(int type);			// called by the UI to set the brushType
+	void	setPaintlyBrush(int type);
 	int		getSize();						// get the UI size: brush size
 	void	setSize(int size);				// set the UI size ??
 	char*	getImageName();					// get the current image name
@@ -71,6 +72,7 @@ public:
 	unsigned char*  m_compositeBitmap;
 	// The current active brush.
 	ImpBrush*		m_pCurrentBrush;
+	ImpBrush* m_pPaintlyBrush;
 
 	// Size of the brush.
 	int m_nSize;	

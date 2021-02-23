@@ -23,9 +23,19 @@ enum
    RIGHT_MOUSE_DOWN,
    RIGHT_MOUSE_DRAG,
    RIGHT_MOUSE_UP,
-   AUTO_PAINT
+   AUTO_PAINT,
+   MULTIRESOLUTION,
+   PAINTLY,
 };
 
+enum
+{
+	IMPRESSIONIST = 0,
+	EXPRESSIONIST,
+	WATERCOLOR,
+	POINTILIST,
+	NUM_STYLE,
+};
 class PaintView : public Fl_Gl_Window
 {
 public:
@@ -45,6 +55,8 @@ public:
 
 	void setEventType(int event) { eventToDo = event; }
 	void setEventTrue() { isAnEvent = 1; }
+
+	void paintLayer(int R, int T);
 
 private:
 	GLvoid* m_pPaintBitstart;
