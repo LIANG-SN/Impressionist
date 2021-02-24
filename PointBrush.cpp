@@ -14,6 +14,7 @@ extern float frand();
 PointBrush::PointBrush( ImpressionistDoc* pDoc, char* name ) :
 	ImpBrush(pDoc,name)
 {
+
 }
 
 void PointBrush::BrushBegin( const Point source, const Point target )
@@ -46,6 +47,7 @@ void PointBrush::BrushMove( const Point source, const Point target )
 		glVertex2d( target.x, target.y );
 
 	glEnd();
+
 }
 
 void PointBrush::BrushEnd( const Point source, const Point target )

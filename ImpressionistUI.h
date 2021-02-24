@@ -57,11 +57,17 @@ public:
 	Fl_Window* m_ColorChooseWindow;
 	Fl_Color_Chooser* m_ColorChooser;
 
+	Fl_Window* m_MosaicWindow;
+	Fl_Slider* m_RatioSlider;
+	Fl_Slider* m_AlphaOfMosaicSlider;
+	Fl_Button* m_MosaicApplyButton;
 
 	Fl_Choice* m_BlurSharpTypeChooser;
 	Fl_Slider* m_BlurSharpLevelSlider;
 	Fl_Slider* m_SharpThresholdSlider;
 	Fl_Button* m_DrawEdgeButton;
+
+	Fl_Slider* m_WarpStrengthSlider;
 
 	Fl_Text_Buffer* m_textBuff;
 	Fl_Text_Display* m_textDisplay;
@@ -102,6 +108,9 @@ public:
 	int					getFilterSize() { return filterSize; };
 	double*				getFilterWeight() { return filterWeight; };
 	bool				getNormalized() { return normalized; };
+	double				getWarpStrength() { return warpStrength; };
+	int					getRatio() { return ratio; };
+	double				getAlphaOfMosaic() { return alphaOfMosaic; };
 	void				print(std::string s);
 private:
 	ImpressionistDoc* m_pDoc;		// pointer to document to communicate with the document
@@ -122,6 +131,9 @@ private:
 	int		filterSize{ 1 };
 	double*	filterWeight=NULL;
 	bool	normalized{ 1 };
+	double	warpStrength{ 1.0 };
+	double	alphaOfMosaic{ 0.3 };
+	int		ratio{ 10 };
 	//const char* 
 
 	// Static class members
@@ -151,6 +163,10 @@ private:
 	static void cb_filter_apply(Fl_Widget* o, void* v);
 	static void cb_filter_normalized(Fl_Widget* o, void* v);
 
+	static void cb_mosaic_of_thumbnail_window(Fl_Menu_* o, void* v);
+	static void cb_mosaic_of_thumbnail_ratioSlider(Fl_Widget* o, void* v);
+	static void cb_mosaic_of_thumbnail_alphaSlider(Fl_Widget* o, void* v);
+	static void cb_mosaic_of_thumbnail_apply(Fl_Widget* o, void* v);
 
 	static void	cb_clear_canvas(Fl_Menu_* o, void* v);
 	static void	cb_exit(Fl_Menu_* o, void* v);
@@ -164,6 +180,7 @@ private:
 	static void cb_alphaSlides(Fl_Widget* o, void* v);
 	static void cb_BlurSharpChoice(Fl_Widget* o, void* v);
 	static void cb_levelSlider(Fl_Widget* o, void* v);
+	static void cb_warpStrengthSlider(Fl_Widget* o, void* v);
 	static void cb_swapOriginPaint(Fl_Menu_* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
 	static void cb_auto_paint(Fl_Menu_* o, void* v);
@@ -173,7 +190,7 @@ private:
 	static void cb_colorChooser(Fl_Widget* o, void* v);
 	static void cb_edgeThresholdSlider(Fl_Widget* o, void* v);
 	static void cb_edgePaintingButton(Fl_Widget* o, void* v);
-
+	
 };
 
 #endif

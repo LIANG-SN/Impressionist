@@ -34,6 +34,9 @@ public:
 	void	generateFadedBackground();
 	void	generatemCompositeBitmap();
 
+	void	generateThumbnail(unsigned char* target, int w, int h);
+	void	showMosaicOfThumbnail(int rate, double alpha);
+
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
 	void	setBrushType(int type);			// called by the UI to set the brushType
 	int		getSize();						// get the UI size: brush size
@@ -67,6 +70,11 @@ public:
 	// Dimensions of the alpha mapped image.
 	int				m_alphaMapedWidth,
 					m_alphaMappedHeight;
+	// Dimensions of the thumbnail image.
+	int				m_thumbnaildWidth,
+					m_thumbnailHeight;
+	int				w_bigger,
+					h_bigger;
 	// Bitmaps for original image and painting.
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucPainting;
@@ -76,6 +84,8 @@ public:
 	unsigned char*  m_alphaMappedBitmap;
 	unsigned char*  m_fadedBackgroundBitmap;
 	unsigned char*  m_compositeBitmap;
+	unsigned char*  m_thumbnailBitmap;
+
 	// The current active brush.
 	ImpBrush*		m_pCurrentBrush;
 
