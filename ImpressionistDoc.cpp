@@ -23,8 +23,10 @@
 #include "BlurSharpBrush.h"
 #include "CurveBrush.h"
 #include "AlphaMappedBrush.h"
+#include "WarpBrush.h"
 #include <cmath>
 #include <string>
+#include <iostream>
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
@@ -42,6 +44,8 @@ ImpressionistDoc::ImpressionistDoc()
 	m_ucPainting_prev = NULL;
 	m_fadedBackgroundBitmap = NULL;
 	m_compositeBitmap = NULL;
+	m_thumbnailBitmap = NULL;
+
 
 	// create one instance of each brush
 	ImpBrush::c_nBrushCount	= NUM_BRUSH_TYPE;
@@ -68,6 +72,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new CurveBrush(this, "Curve");
 	ImpBrush::c_pBrushes[BRUSH_ALPHA_MAPPED]
 		= new AlphaMappedBrush(this, "Alpha Mapped");
+	ImpBrush::c_pBrushes[BRUSH_WARP]
+		= new WarpBrush(this, "Warp");
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
 	m_pPaintlyBrush = ImpBrush::c_pBrushes[0];
@@ -411,6 +417,7 @@ void ImpressionistDoc::applyWeightedFilter()
 
 }
 
+
 void ImpressionistDoc::generateFadedBackground()
 {
 	if (!m_ucBitmap) return;
@@ -458,11 +465,154 @@ void ImpressionistDoc::generatemCompositeBitmap()
 	}
 }
 
+__inline double bilinear(double a, double b, int uv, int u1v, int uv1, int u1v1)
+{
+	return (double)(uv * (1 - a) * (1 - b) + u1v * a * (1 - b) + uv1 * b * (1 - a) + u1v1 * a * b);
+}
+
+void ImpressionistDoc::generateThumbnail(unsigned char* target, int w, int h)
+{
+	double x_rate = m_nWidth / w;
+	double y_rate = m_nHeight / h;
+	
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++) {
+			double ox = x_rate * x ;
+			double oy = y_rate * y ;
+
+			int x1 = (int)ox;
+			int y1 = (int)oy;
+
+
+			for (int i = 0; i < 3; i++)
+			{
+				
+				double color = bilinear(ox - x1, oy - y1,
+					m_ucBitmap[(m_nWidth * y1 + x1) * 3 + i],
+					m_ucBitmap[(m_nWidth * y1 + x1 + 1) * 3 + i],
+					m_ucBitmap[(m_nWidth * (y1 + 1) + x1) * 3 + i],
+					m_ucBitmap[(m_nWidth * (y1 + 1) + x1 + 1) * 3 + i]);
+				if (color > 255)
+					*(target + 3 * (y * w + h) + i) = 255;
+				else
+					*(target + 3 * (y * w + x) + i) = color;
+			}
+			
+		}
+	}
+}
+void ImpressionistDoc::showMosaicOfThumbnail(int rate,double alpha)
+{
+	int w = (int) m_nWidth / rate;
+	int h = (int) m_nHeight / rate;
+	int wr = m_nWidth % w;
+	int hr = m_nHeight % h;
+	m_thumbnaildWidth = w + wr / rate;
+	m_thumbnailHeight = h + hr / rate;
+	w_bigger = wr % rate;
+	h_bigger = hr % rate;
+	
+
+
+	if (m_thumbnailBitmap) delete[] m_thumbnailBitmap;
+	
+	m_thumbnailBitmap = new unsigned char[m_thumbnaildWidth * m_thumbnailHeight * 3];
+
+
+	generateThumbnail(m_thumbnailBitmap, m_thumbnaildWidth, m_thumbnailHeight);
+
+
+	for (int a = 0; a < rate; a++)
+	{
+		bool is_big_h = (a < h_bigger);
+
+			
+			//int start = 3 * (a * m_nWidth * (m_thumbnailHeight + 1) + b * (m_thumbnaildWidth + 1));
+
+		for (int i = 0; i < m_thumbnailHeight; i++)
+		{
+			int h_start = (m_thumbnailHeight * a + is_big_h * a + (1 - is_big_h) * h_bigger + i) * m_nWidth * 3;
+			//if (m_thumbnailHeight * a + is_big_h * a + (1 - is_big_h) * h_bigger + i >= m_nHeight)
+				
+			//if (i == 0)
+			//	std::cout << m_thumbnailHeight * a + is_big_h * a + (1 - is_big_h) * h_bigger + i<<'\n';
+
+			for (int b = 0; b < rate; b++)
+			{
+				bool is_big_w = (b < w_bigger);
+				//if(m_thumbnaildWidth * b + is_big_w * b + (1 - is_big_w) * w_bigger>= m_nWidth)
+				//	count++;
+				int w_start = (m_thumbnaildWidth * b + is_big_w * b + (1 - is_big_w) * w_bigger) * 3;
+				for (int j = 0; j < m_thumbnaildWidth; j++)
+				{
+
+					for (int k = 0; k < 3; k++)
+					{
+						int color = *(m_thumbnailBitmap + 3 * (i * m_thumbnaildWidth + j) + k) * alpha +
+							*(m_ucBitmap + h_start + w_start + j * 3 + k) * (1 - alpha);
+						if (color > 255)
+							color = 255;
+						*(m_ucPainting + h_start + w_start + j * 3 + k) = color;
+					
+					}
+				}
+
+				if (is_big_w)
+				{
+					for (int k = 0; k < 3; k++)
+					{
+						int color = *(m_ucPainting + h_start + w_start + (m_thumbnaildWidth - 1) * 3 + k) * alpha
+							+ *(m_ucBitmap + h_start + w_start + m_thumbnaildWidth * 3 + k) * (1 - alpha);
+						if (color > 255)
+							color = 255;
+						*(m_ucPainting + h_start + w_start + m_thumbnaildWidth * 3 + k) = color;
+
+					}
+				}
+			}
+
+
+		}
+
+
+		if (is_big_h)
+		{
+			int h_end = (m_thumbnailHeight * (a + 1) + is_big_h * a + (1 - is_big_h) * h_bigger - 1) * m_nWidth * 3;
+			for (int i = 0; i < m_nWidth; i++)
+			{
+				for (int k = 0; k < 3; k++)
+				{
+					
+					int color = *(m_ucPainting + h_end + m_nWidth * 3 + 3 * i + k) * (1 - alpha) +
+						*(m_ucBitmap + h_end + m_thumbnailHeight * m_nWidth * 3 + 3 * i + k) * alpha;
+					if (color > 255)
+						color = 255;
+					* (m_ucPainting + h_end + m_nWidth * 3 + 3 * i + k) = color;
+					
+				}
+			}
+		}
+
+			
+
+
+		
+	}
+
+	//std::cout << count << '\n';
+
+
+	m_pUI->m_paintView->refresh();
+}
+
 
 int ImpressionistDoc::saveImage(char *iname)
 {
 
 	writeBMP(iname, m_nPaintWidth, m_nPaintHeight, m_ucPainting);
+	//writeBMP(iname, m_thumbnaildWidth, m_thumbnailHeight, m_ucBitmap);
+
 
 	return 1;
 }
@@ -569,15 +719,15 @@ GLubyte* ImpressionistDoc::GetPaintingPixel(int x, int y)
 {
 	if (x < 0)
 		x = 0;
-	else if (x >= m_nPaintWidth)
-		x = m_nPaintWidth - 1;
+	else if (x >= m_nWidth)
+		x = m_nWidth - 1;
 
 	if (y < 0)
 		y = 0;
-	else if (y >= m_nPaintHeight)
-		y = m_nPaintHeight - 1;
+	else if (y >= m_nHeight)
+		y = m_nHeight - 1;
 
-	return (GLubyte*)(m_ucPainting + 3 * (y * m_nPaintWidth + x));
+	return (GLubyte*)(m_ucPainting + 3 * (y * m_nWidth + x));
 }
 
 
