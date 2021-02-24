@@ -20,6 +20,8 @@
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Input.H>
 
+#include <iostream>
+
 #include "Impressionist.h"
 #include "OriginalView.h"
 #include "PaintView.h"
