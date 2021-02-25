@@ -9,6 +9,7 @@
 
 #include "impressionist.h"
 #include "bitmap.h"
+#include "Matting.h"
 
 class ImpressionistUI;
 
@@ -26,6 +27,9 @@ public:
 	int		loadEdgeImage(char* iname);
 	int		loadMuralImage(char* iname);
 	int		loadAlphaMappedImage(char* iname);
+
+	int		loadMattingAlphaImage(char* iname);
+	void    MattingImage();
 
 	void	generateEdgeImage();
 
@@ -76,6 +80,7 @@ public:
 					m_thumbnailHeight;
 	int				w_bigger,
 					h_bigger;
+
 	// Bitmaps for original image and painting.
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucPainting;
@@ -87,9 +92,13 @@ public:
 	unsigned char*  m_compositeBitmap;
 	unsigned char*  m_thumbnailBitmap;
 
+	unsigned char*  m_mattingAlphaBitmap;
+
 	// The current active brush.
 	ImpBrush*		m_pCurrentBrush;
-	ImpBrush* m_pPaintlyBrush;
+	ImpBrush*		m_pPaintlyBrush;
+
+	Matting*		matte;
 
 	// Size of the brush.
 	int m_nSize;	

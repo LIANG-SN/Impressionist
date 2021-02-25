@@ -180,7 +180,7 @@ private:
 	int		filterSize{ 1 };
 	double*	filterWeight=NULL;
 	bool	normalized{ 1 };
-	double	warpStrength{ 1.0 };
+	double	warpStrength{ 12.0 };
 	double	alphaOfMosaic{ 0.3 };
 	int		ratio{ 10 };
 	//const char* 
@@ -207,6 +207,9 @@ private:
 	static void	cb_brushes(Fl_Menu_* o, void* v);
 	static void cb_faded_background_window(Fl_Menu_* o, void* v);
 	static void cb_faded_slider(Fl_Widget* o, void* v);
+
+	static void cb_load_alpha_image_for_matting(Fl_Menu_* o, void* v);
+	static void cb_matting(Fl_Menu_* o, void* v);
 
 	static void cb_filter_kernel_design_window(Fl_Menu_* o, void* v);
 	static void cb_filter_size_input(Fl_Widget* o, void* v);

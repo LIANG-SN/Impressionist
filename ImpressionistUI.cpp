@@ -9,6 +9,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <Eigen/Dense>
 
 #include "impressionistUI.h"
 #include "impressionistDoc.h"
@@ -230,6 +231,25 @@ void ImpressionistUI::cb_load_dissolve_image(Fl_Menu_* o, void* v)
 	if (newfile != NULL) {
 		pDoc->dissolve_image(newfile);
 	}
+}
+
+
+
+void ImpressionistUI::cb_load_alpha_image_for_matting(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadMattingAlphaImage(newfile);
+	}
+}
+
+void ImpressionistUI::cb_matting(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+	pDoc->MattingImage();
+	pDoc->m_pUI->m_paintView->refresh();
 }
 
 
@@ -772,9 +792,10 @@ void ImpressionistUI::print(std::string s)
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
-		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
-	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
-		 {"load Alpha Mapped Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_mapped_image},
+		{"Load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
+	    {"Load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
+		{"Load Alpha Mapped Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_mapped_image},
+		{"Load Alpha Image for Matting", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_image_for_matting},
 		{"New Mural Image", NULL, (Fl_Callback*)ImpressionistUI::cb_new_mural_image},
 		{"&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
@@ -798,6 +819,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
 		{"&Filter Kernel Design...", NULL, (Fl_Callback*)ImpressionistUI::cb_filter_kernel_design_window},
 		{"Mosaic of thumbnail", NULL, (Fl_Callback*)ImpressionistUI::cb_mosaic_of_thumbnail_window},
+		{"Matting", NULL, (Fl_Callback*)ImpressionistUI::cb_matting},
 	{0},
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
 		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
@@ -997,7 +1019,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_WarpStrengthSlider->labelfont(FL_COURIER);
 	m_WarpStrengthSlider->labelsize(12);
 	m_WarpStrengthSlider->minimum(1.0);
-	m_WarpStrengthSlider->maximum(20.0);
+	m_WarpStrengthSlider->maximum(14.0);
 	m_WarpStrengthSlider->step(0.1);
 	m_WarpStrengthSlider->value(warpStrength);
 	m_WarpStrengthSlider->align(FL_ALIGN_RIGHT);

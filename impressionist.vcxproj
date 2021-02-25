@@ -63,7 +63,7 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>local\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory);local\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>c:\temp\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>c:\temp\impressionist.pch</PrecompiledHeaderOutputFile>
@@ -140,9 +140,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AlphaMappedBrush.cpp" />
+    <ClCompile Include="Matting.cpp" />
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="BlurSharpBrush.cpp" />
     <ClCompile Include="CircleBrush.cpp" />
+    <ClCompile Include="Cluster.cpp" />
     <ClCompile Include="CurveBrush.cpp" />
     <ClCompile Include="ImpBrush.cpp" />
     <ClCompile Include="Impressionist.cpp" />
@@ -160,9 +162,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlphaMappedBrush.h" />
+    <ClInclude Include="Matting.h" />
     <ClInclude Include="bitmap.h" />
     <ClInclude Include="BlurSharpBrush.h" />
     <ClInclude Include="CircleBrush.h" />
+    <ClInclude Include="Cluster.h" />
     <ClInclude Include="CurveBrush.h" />
     <ClInclude Include="ImpBrush.h" />
     <ClInclude Include="impressionist.h" />

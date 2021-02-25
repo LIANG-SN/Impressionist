@@ -45,7 +45,7 @@ ImpressionistDoc::ImpressionistDoc()
 	m_fadedBackgroundBitmap = NULL;
 	m_compositeBitmap = NULL;
 	m_thumbnailBitmap = NULL;
-
+	m_mattingAlphaBitmap = NULL;
 
 	// create one instance of each brush
 	ImpBrush::c_nBrushCount	= NUM_BRUSH_TYPE;
@@ -77,6 +77,8 @@ ImpressionistDoc::ImpressionistDoc()
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
 	m_pPaintlyBrush = ImpBrush::c_pBrushes[0];
+
+	matte = NULL;
 
 }
 
@@ -219,6 +221,9 @@ int ImpressionistDoc::loadImage(char *iname)
 	m_ucPainting_prev = new unsigned char[width * height * 3];
 	memset(m_ucPainting_prev, 0, width * height * 3);
 
+
+
+
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
 								width*2, 
@@ -286,6 +291,41 @@ int ImpressionistDoc::loadEdgeImage(char* iname)
 
 	return 1;
 }
+
+
+int ImpressionistDoc::loadMattingAlphaImage(char* iname)
+{
+	unsigned char* data;
+	int				width, height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("Can't load. Image size must be same!");
+		delete[] data;
+		return 0;
+	}
+
+	// release old storage
+	if (m_mattingAlphaBitmap) delete[] m_mattingAlphaBitmap;
+	m_mattingAlphaBitmap = data;
+	memcpy(m_ucPainting, m_mattingAlphaBitmap, width * height * 3);
+	m_pUI->m_paintView->refresh();
+
+	return 1;
+}
+
+void  ImpressionistDoc::MattingImage()
+{
+	matte=new Matting(this);
+	matte->solveAlpha();
+	matte->generateNewAlphaBitmap();
+}
+
 
 int	ImpressionistDoc::loadMuralImage(char* iname) 
 {
