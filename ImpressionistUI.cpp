@@ -9,7 +9,12 @@
 
 #include <math.h>
 #include <iostream>
+
 #include <thread>
+
+// #include <Eigen/Dense>
+
+
 #include "impressionistUI.h"
 #include "impressionistDoc.h"
 
@@ -254,6 +259,26 @@ void ImpressionistUI::cb_play_video(void* p_ui)
 	else
 		pDoc->avi->readEnd();
 }
+
+void ImpressionistUI::cb_load_alpha_image_for_matting(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName());
+	if (newfile != NULL) {
+		pDoc->loadMattingAlphaImage(newfile);
+	}
+}
+
+void ImpressionistUI::cb_matting(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+	pDoc->MattingImage();
+	pDoc->m_pUI->m_paintView->refresh();
+}
+
+
+
 void ImpressionistUI::cb_faded_background_window(Fl_Menu_* o, void* v)
 {
 	whoami(o)->m_fadedBackgroundWindow->show();
@@ -392,6 +417,33 @@ void ImpressionistUI::cb_save_image(Fl_Menu_* o, void* v)
 	}
 }
 
+void ImpressionistUI::cb_mosaic_of_thumbnail_window(Fl_Menu_* o, void* v)
+{
+	whoami(o)->m_MosaicWindow->show();
+}
+
+void ImpressionistUI::cb_mosaic_of_thumbnail_ratioSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->ratio = int(((Fl_Slider*)o)->value());
+}
+
+
+void ImpressionistUI::cb_mosaic_of_thumbnail_alphaSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->alphaOfMosaic = double(((Fl_Slider*)o)->value());
+
+}
+
+
+void ImpressionistUI::cb_mosaic_of_thumbnail_apply(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+	pDoc->showMosaicOfThumbnail(pUI->getRatio(), pUI->getAlphaOfMosaic());
+
+}
+
+
 //-------------------------------------------------------------
 // Brings up the paint dialog
 // This is called by the UI when the brushes menu item
@@ -503,6 +555,11 @@ void ImpressionistUI::cb_alphaSlides(Fl_Widget* o, void* v)
 void ImpressionistUI::cb_levelSlider(Fl_Widget* o, void* v)
 {
 	((ImpressionistUI*)(o->user_data()))->level = int(((Fl_Slider*)o)->value());
+}
+
+void ImpressionistUI::cb_warpStrengthSlider(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->warpStrength = int(((Fl_Slider*)o)->value());
 }
 
 void ImpressionistUI::cb_swapOriginPaint(Fl_Menu_* o, void* v)
@@ -642,12 +699,14 @@ void ImpressionistUI::cb_styleChoice(Fl_Widget* o, void* v)
 
 }
 
+
 void ImpressionistUI::cb_multiResolution(Fl_Menu_* o, void* v)
 {
 	whoami(o)->m_paintView->setEventType(MULTIRESOLUTION);
 	whoami(o)->m_paintView->setEventTrue();
 	whoami(o)->m_paintView->refresh();
 }
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -741,13 +800,16 @@ void  ImpressionistUI::setLayerRatio(int R)
 	layerRatio = R;
 	m_layerRatioSlider->value(R);
 }
+
+
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback*)ImpressionistUI::cb_load_image },
-		{"load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
-	    {"load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
-		 {"load Alpha Mapped Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_mapped_image},
+		{"Load Another Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_another_image}, 
+	    {"Load Edge Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_edge_image},
+		{"Load Alpha Mapped Image", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_mapped_image},
+		{"Load Alpha Image for Matting", NULL, (Fl_Callback*)ImpressionistUI::cb_load_alpha_image_for_matting},
 		{"New Mural Image", NULL, (Fl_Callback*)ImpressionistUI::cb_new_mural_image},
 		{"&Dissolve Image...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_dissolve_image},
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback*)ImpressionistUI::cb_save_image, 0, FL_MENU_DIVIDER  },
@@ -770,8 +832,13 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
 		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
 		{"&Filter Kernel Design...", NULL, (Fl_Callback*)ImpressionistUI::cb_filter_kernel_design_window},
+
 		{"&Load Video...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_video},
 	    {0},
+
+		{"Mosaic of thumbnail", NULL, (Fl_Callback*)ImpressionistUI::cb_mosaic_of_thumbnail_window},
+		{"Matting", NULL, (Fl_Callback*)ImpressionistUI::cb_matting},
+	{0},
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
 		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
 		{ 0 },
@@ -791,7 +858,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE + 1] = {
   {"Blur or Sharpen",	0,			  (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_BLURORSHARPEN},
   {"Curve Brush", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_CURVE},
   {"Alpha Mapped", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_ALPHA_MAPPED},
- 
+  {"Warp", NULL, (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_WARP},
 	{0}
 };
 
@@ -959,6 +1026,18 @@ ImpressionistUI::ImpressionistUI() {
 	m_DrawEdgeButton->user_data((void*)(this));
 	m_DrawEdgeButton->callback(cb_edgePaintingButton);
 
+	m_WarpStrengthSlider = new Fl_Value_Slider(10, 290, 180, 20, "Warp Strength");
+	m_WarpStrengthSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_WarpStrengthSlider->type(FL_HOR_NICE_SLIDER);
+	m_WarpStrengthSlider->labelfont(FL_COURIER);
+	m_WarpStrengthSlider->labelsize(12);
+	m_WarpStrengthSlider->minimum(1.0);
+	m_WarpStrengthSlider->maximum(14.0);
+	m_WarpStrengthSlider->step(0.1);
+	m_WarpStrengthSlider->value(warpStrength);
+	m_WarpStrengthSlider->align(FL_ALIGN_RIGHT);
+	m_WarpStrengthSlider->callback(cb_warpStrengthSlider);
+
 
 	
 	m_brushDialog->end();
@@ -988,7 +1067,6 @@ ImpressionistUI::ImpressionistUI() {
 	m_fadeInSlider->labelsize(12);
 	m_fadeInSlider->minimum(0.00);
 	m_fadeInSlider->maximum(1.00);
-	m_fadeInSlider->value(0.00);
 	m_fadeInSlider->step(0.01);
 	m_fadeInSlider->value(fadedRate);
 	m_fadeInSlider->align(FL_ALIGN_RIGHT);
@@ -1111,4 +1189,39 @@ ImpressionistUI::ImpressionistUI() {
 	m_filter_apply_button->callback(cb_filter_apply);
 
 	m_filterKernelDesignWindow->end();
+
+
+	m_MosaicWindow = new Fl_Window(350, 230, "Mosaic of Thumbnail");
+	m_MosaicWindow->user_data((void*)(this));
+
+	m_RatioSlider = new Fl_Value_Slider(10, 10, 180, 20, "Ratio of Thumbnail \n and Orignal Picture");
+	m_RatioSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_RatioSlider->type(FL_HOR_NICE_SLIDER);
+	m_RatioSlider->labelfont(FL_COURIER);
+	m_RatioSlider->labelsize(12);
+	m_RatioSlider->minimum(1);
+	m_RatioSlider->maximum(15);
+	m_RatioSlider->value(ratio);
+	m_RatioSlider->step(1);
+	m_RatioSlider->align(FL_ALIGN_RIGHT);
+	m_RatioSlider->callback(cb_mosaic_of_thumbnail_ratioSlider);
+	
+	m_AlphaOfMosaicSlider = new Fl_Value_Slider(10, 40, 180, 20, "Alpha");
+	m_AlphaOfMosaicSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_AlphaOfMosaicSlider->type(FL_HOR_NICE_SLIDER);
+	m_AlphaOfMosaicSlider->labelfont(FL_COURIER);
+	m_AlphaOfMosaicSlider->labelsize(12);
+	m_AlphaOfMosaicSlider->minimum(0.00);
+	m_AlphaOfMosaicSlider->maximum(1.00);
+	m_AlphaOfMosaicSlider->value(alphaOfMosaic);
+	m_AlphaOfMosaicSlider->step(0.01);
+	m_AlphaOfMosaicSlider->align(FL_ALIGN_RIGHT);
+	m_AlphaOfMosaicSlider->callback(cb_mosaic_of_thumbnail_alphaSlider);
+
+	m_MosaicApplyButton = new Fl_Button(10, 70, 80, 20, "&Apply");
+	m_MosaicApplyButton->user_data((void*)(this));
+	m_MosaicApplyButton->callback(cb_mosaic_of_thumbnail_apply);
+
+	m_MosaicWindow->end();
+
 }

@@ -17,6 +17,15 @@
 #include "impressionistDoc.h"
 #include "time.h"
 
+#include "Cluster.h"
+
+// #include <Eigen/Dense>
+// using namespace Eigen;
+
+ImpressionistUI *impUI;
+ImpressionistDoc *impDoc;
+
+
 int main(int	argc, 
 		 char**	argv) 
 {
