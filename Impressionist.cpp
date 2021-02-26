@@ -25,10 +25,14 @@
 ImpressionistUI *impUI;
 ImpressionistDoc *impDoc;
 
+
 int main(int	argc, 
 		 char**	argv) 
 {
+
 	srand(time(0));
+    ImpressionistUI *impUI;
+    ImpressionistDoc *impDoc;
 
 	impDoc = new ImpressionistDoc();
 
@@ -42,8 +46,6 @@ int main(int	argc,
 	Fl::visual(FL_DOUBLE|FL_INDEX);
 
 	impUI->show();
-
-
 
 	return Fl::run();
 }
