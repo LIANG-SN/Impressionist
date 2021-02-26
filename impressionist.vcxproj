@@ -34,10 +34,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -93,7 +95,7 @@
       <IgnoreSpecificDefaultLibraries>libcmtd;libcd;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>.\Debug\impressionist.exe</OutputFile>
       <AdditionalLibraryDirectories>local/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fltkd.lib;fltkgld.lib;wsock32.lib;opengl32.lib;glu32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;fltkgld.lib;wsock32.lib;opengl32.lib;glu32.lib;odbc32.lib;odbccp32.lib;vfw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -140,11 +142,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AlphaMappedBrush.cpp" />
-
     <ClCompile Include="Avi.cpp" />
-
     <ClCompile Include="Matting.cpp" />
-
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="BlurSharpBrush.cpp" />
     <ClCompile Include="CircleBrush.cpp" />
@@ -166,11 +165,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlphaMappedBrush.h" />
-
     <ClInclude Include="Avi.h" />
-
     <ClInclude Include="Matting.h" />
-
     <ClInclude Include="bitmap.h" />
     <ClInclude Include="BlurSharpBrush.h" />
     <ClInclude Include="CircleBrush.h" />
