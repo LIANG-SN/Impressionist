@@ -218,7 +218,7 @@ int ImpressionistDoc::loadImage(char *iname)
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
 								width*2, 
-								height+325); // additional 300 for text window
+								height+25); // additional 300 for text window
 
 	// display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);	
@@ -368,7 +368,7 @@ int ImpressionistDoc::loadVideo(char* iname)
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(),
 		m_pUI->m_mainWindow->y(),
 		width * 2,
-		height + 325); // additional 300 for text window
+		height + 25); // additional 300 for text window
 
 // display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);

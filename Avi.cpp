@@ -1,5 +1,4 @@
 #include "Avi.h"
-//#include <atlstr.h>
 
 
 bool Avi::readStart(std::string file, int& width, int& height)
@@ -69,6 +68,60 @@ bool Avi::readStart(std::string file, int& width, int& height)
         NULL/*(BITMAPINFOHEADER*) AVIGETFRAMEF_BESTDISPLAYFMT*/ /*&bih*/);
     return true;
 }
+
+unsigned char* Avi::getNextFrame()
+{
+    if (frameIndex >= iNumFrames - iFirstFrame)
+        return nullptr;
+
+    BYTE* pDIB = (BYTE*)AVIStreamGetFrame(pFrame, frameIndex); // return type DIB
+    // ASSERT(pDIB != NULL);
+
+    //Creates a full-color (no palette) DIB from a pointer to a
+    //full-color memory DIB
+
+    //get the BitmapInfoHeader
+    BITMAPINFOHEADER bih;
+    RtlMoveMemory(&bih.biSize, pDIB, sizeof(BITMAPINFOHEADER));
+
+    //now get the bitmap bits
+    if (bih.biSizeImage < 1)
+    {
+        return nullptr;
+    }
+
+    BYTE* Bits = new BYTE[bih.biSizeImage];
+
+    RtlMoveMemory(Bits, pDIB + sizeof(BITMAPINFOHEADER), bih.biSizeImage);
+
+    //and BitmapInfo variable-length UDT
+    BYTE memBitmapInfo[40];
+    RtlMoveMemory(memBitmapInfo, &bih, sizeof(bih));
+
+    ++frameIndex;
+    BYTE* p = Bits;
+    for (int i = 0; i < m_width * m_height; i++)
+    {
+        BYTE temp = p[0];
+        p[0] = p[2];
+        p[2] = temp;
+        p += 3;
+    }
+    return Bits;  // doc should delete this
+}
+bool Avi::readEnd()
+{
+    AVIStreamGetFrameClose(pFrame);
+
+    //close the stream after finishing the task
+    if (readStream != NULL)
+        AVIStreamRelease(readStream);
+
+    
+
+    return TRUE;
+}
+
 bool Avi::writeStart(std::string file)
 {
     HRESULT error = AVIFileOpen(&writeFile, file.c_str(), OF_CREATE | OF_WRITE, NULL);
@@ -142,9 +195,6 @@ bool Avi::writeNextFrame(unsigned char* data)
 
     // convert bmp to dib ?
 
-
-
-
     HRESULT error = AVIStreamWrite(compressedStream, frameIndex + iFirstFrame, 1,
         data, m_width * m_height * 3, 0, NULL, NULL);
     if ( error != AVIERR_OK)
@@ -160,58 +210,6 @@ bool Avi::writeEnd()
     //close the stream after finishing the task
     if (readStream != NULL)
         AVIStreamRelease(writeStream);
-
-    return TRUE;
-}
-unsigned char* Avi::getNextFrame()
-{
-    if (frameIndex >= iNumFrames - iFirstFrame)
-        return nullptr;
-
-    BYTE* pDIB = (BYTE*)AVIStreamGetFrame(pFrame, frameIndex); // return type DIB
-    // ASSERT(pDIB != NULL);
-
-    //Creates a full-color (no palette) DIB from a pointer to a
-    //full-color memory DIB
-
-    //get the BitmapInfoHeader
-    BITMAPINFOHEADER bih;
-    RtlMoveMemory(&bih.biSize, pDIB, sizeof(BITMAPINFOHEADER));
-
-    //now get the bitmap bits
-    if (bih.biSizeImage < 1)
-    {
-        return nullptr;
-    }
-
-    BYTE* Bits = new BYTE[bih.biSizeImage];
-
-    RtlMoveMemory(Bits, pDIB + sizeof(BITMAPINFOHEADER), bih.biSizeImage);
-
-    //and BitmapInfo variable-length UDT
-    BYTE memBitmapInfo[40];
-    RtlMoveMemory(memBitmapInfo, &bih, sizeof(bih));
-
-    ++frameIndex;
-    BYTE* p = Bits;
-    for (int i = 0; i < m_width * m_height; i++)
-    {
-        BYTE temp = p[0];
-        p[0] = p[2];
-        p[2] = temp;
-        p += 3;
-    }
-    return Bits;  // doc should delete this
-}
-bool Avi::readEnd()
-{
-    AVIStreamGetFrameClose(pFrame);
-
-    //close the stream after finishing the task
-    if (readStream != NULL)
-        AVIStreamRelease(readStream);
-
-    
 
     return TRUE;
 }

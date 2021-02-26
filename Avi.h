@@ -8,7 +8,6 @@
 #include<Windows.h>
 #include <Vfw.h>
 #include <string>
-//#include <afxwin.h>
 
 class Avi
 {
