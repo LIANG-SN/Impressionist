@@ -93,7 +93,7 @@
       <IgnoreSpecificDefaultLibraries>libcmtd;libcd;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>.\Debug\impressionist.exe</OutputFile>
       <AdditionalLibraryDirectories>local/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fltkd.lib;fltkgld.lib;wsock32.lib;opengl32.lib;glu32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;fltkgld.lib;wsock32.lib;opengl32.lib;glu32.lib;odbc32.lib;odbccp32.lib;vfw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
