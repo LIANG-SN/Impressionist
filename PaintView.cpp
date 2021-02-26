@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+
 #ifndef WIN32
 #define min(a, b)	( ( (a)<(b) ) ? (a) : (b) )
 #define max(a, b)	( ( (a)>(b) ) ? (a) : (b) )

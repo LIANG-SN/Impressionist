@@ -16,7 +16,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Color_Chooser.H>
-#include <FL/FL_Text_Display.H>
+//#include <FL/FL_Text_Display.H>
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Input.H>
 
@@ -64,8 +64,8 @@ public:
 	Fl_Button* m_DrawEdgeButton;
 
 	// text window
-	Fl_Text_Buffer* m_textBuff;
-	Fl_Text_Display* m_textDisplay;
+	//Fl_Text_Buffer* m_textBuff;
+	//Fl_Text_Display* m_textDisplay;
 
 	Fl_Window*			m_filterKernelDesignWindow;
 	Fl_Int_Input*		m_filterSizeInput;
@@ -231,6 +231,9 @@ private:
 	static void cb_layerRatioSlider(Fl_Widget* o, void* v);
 	static void cb_paintlyDraw(Fl_Widget* o, void* v);
 
+	static void cb_load_video(Fl_Menu_* o, void* v);
+	static void cb_load_next_frame(Fl_Menu_* o, void* v);
+	static void cb_play_video(void*);
 };
 
 #endif

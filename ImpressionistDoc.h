@@ -9,6 +9,7 @@
 
 #include "impressionist.h"
 #include "bitmap.h"
+#include "Avi.h"
 
 class ImpressionistUI;
 
@@ -26,6 +27,7 @@ public:
 	int		loadEdgeImage(char* iname);
 	int		loadMuralImage(char* iname);
 	int		loadAlphaMappedImage(char* iname);
+	int		loadVideo(char* iname);
 
 	void	generateEdgeImage();
 
@@ -56,6 +58,8 @@ public:
 	int     dissolve_image(char* iname);
 	bool    isEdge(const int x, const int y);
 	int 	getGradientOfPoint(const int x, const int y, int& Gx, int& Gy);
+	bool	processVideo();
+	void    videoEnd();
 
 // Attributes
 public:
@@ -77,6 +81,7 @@ public:
 	unsigned char*  m_alphaMappedBitmap;
 	unsigned char*  m_fadedBackgroundBitmap;
 	unsigned char*  m_compositeBitmap;
+	unsigned char*  m_vedioBitmap;
 	// The current active brush.
 	ImpBrush*		m_pCurrentBrush;
 	ImpBrush* m_pPaintlyBrush;
@@ -85,6 +90,8 @@ public:
 	int m_nSize;	
 
 	ImpressionistUI*	m_pUI;
+
+	Avi*					avi;
 
 	double brushMoveAngle;
 

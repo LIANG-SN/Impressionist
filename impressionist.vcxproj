@@ -134,12 +134,13 @@
       <IgnoreSpecificDefaultLibraries>libcmt;libc;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>.\Release\impressionist.exe</OutputFile>
       <AdditionalLibraryDirectories>local\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fltk.lib;fltkgl.lib;wsock32.lib;opengl32.lib;glu32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;fltkgl.lib;wsock32.lib;opengl32.lib;glu32.lib;odbc32.lib;odbccp32.lib;vfw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AlphaMappedBrush.cpp" />
+    <ClCompile Include="Avi.cpp" />
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="BlurSharpBrush.cpp" />
     <ClCompile Include="CircleBrush.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlphaMappedBrush.h" />
+    <ClInclude Include="Avi.h" />
     <ClInclude Include="bitmap.h" />
     <ClInclude Include="BlurSharpBrush.h" />
     <ClInclude Include="CircleBrush.h" />
@@ -172,9 +174,14 @@
     <ClInclude Include="PaintView.h" />
     <ClInclude Include="PentagramBrush.h" />
     <ClInclude Include="PointBrush.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="ScatteredCircleBrush.h" />
     <ClInclude Include="ScatteredLineBrush.h" />
     <ClInclude Include="ScatterPointBrush.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="impressionist.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

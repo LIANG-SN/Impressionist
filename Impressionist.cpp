@@ -16,13 +16,14 @@
 #include "impressionistUI.h"
 #include "impressionistDoc.h"
 #include "time.h"
-ImpressionistUI *impUI;
-ImpressionistDoc *impDoc;
 
 int main(int	argc, 
 		 char**	argv) 
 {
+
 	srand(time(0));
+    ImpressionistUI *impUI;
+    ImpressionistDoc *impDoc;
 
 	impDoc = new ImpressionistDoc();
 
@@ -37,25 +38,6 @@ int main(int	argc,
 
 	impUI->show();
 
-// my test
-	//Fl_Window* window = new Fl_Window(300, 180);
-	//Fl_Box* box = new Fl_Box(20, 40, 260, 100, "Hello World!");
-	////box->(FL_UP_BOX);
-	//box->labelsize(36);
-	//box->labelfont(FL_BOLD);
-	//box->labeltype(FL_SHADOW_LABEL);
-	//window->end();
-	//window->show(argc, argv);
-
-	//// test GL
-	//glBegin(GL_POLYGON);
-	//glVertex2i(10, 5);
-	//glVertex2i(20, 15);
-	//glVertex2i(10, 15);
-	//glEnd();
-
-	//glFlush();   // don't forget this!
-// my test end
 	return Fl::run();
 }
 

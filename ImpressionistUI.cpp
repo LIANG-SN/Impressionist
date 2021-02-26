@@ -9,7 +9,7 @@
 
 #include <math.h>
 #include <iostream>
-
+#include <thread>
 #include "impressionistUI.h"
 #include "impressionistDoc.h"
 
@@ -230,9 +230,35 @@ void ImpressionistUI::cb_load_dissolve_image(Fl_Menu_* o, void* v)
 	if (newfile != NULL) {
 		pDoc->dissolve_image(newfile);
 	}
+	
 }
 
+void ImpressionistUI::cb_load_video(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
 
+	char* newfile = fl_file_chooser("Open File?", "*.avi", NULL);
+	if (newfile != NULL) 
+		pDoc->loadVideo(newfile);
+	
+}
+void ImpressionistUI::cb_play_video(void* p_ui)
+{
+
+	ImpressionistDoc* pDoc = ((ImpressionistUI*)(p_ui))->getDocument(); 
+	
+	if (pDoc->processVideo())
+		Fl::repeat_timeout(pDoc->avi->getPeriod(), cb_play_video, p_ui);
+	else
+		pDoc->avi->readEnd();
+}
+void ImpressionistUI::cb_load_next_frame(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = ((ImpressionistUI*)(whoami(o)))->getDocument();
+
+	Fl::add_timeout(pDoc->avi->getPeriod(), cb_play_video, whoami(o));
+	
+}
 void ImpressionistUI::cb_faded_background_window(Fl_Menu_* o, void* v)
 {
 	whoami(o)->m_fadedBackgroundWindow->show();
@@ -720,19 +746,19 @@ void  ImpressionistUI::setLayerRatio(int R)
 	layerRatio = R;
 	m_layerRatioSlider->value(R);
 }
-void ImpressionistUI::print(std::string s)
-{
-	int n = s.length();
-	// declaring character array
-
-	char* c = new char[n + 1];
-
-	// copying the contents of the
-	// string to char array
-	strcpy(c, s.c_str());
-
-	 m_textBuff->append(c); 
-}
+//void ImpressionistUI::print(std::string s)
+//{
+//	int n = s.length();
+//	// declaring character array
+//
+//	char* c = new char[n + 1];
+//
+//	// copying the contents of the
+//	// string to char array
+//	strcpy(c, s.c_str());
+//
+//	 m_textBuff->append(c); 
+//}
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -762,7 +788,9 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	    { "&Undo", NULL, (Fl_Callback*)ImpressionistUI::cb_undo},
 		{"&Added Faded Background...", NULL, (Fl_Callback*)ImpressionistUI::cb_faded_background_window},
 		{"&Filter Kernel Design...", NULL, (Fl_Callback*)ImpressionistUI::cb_filter_kernel_design_window},
-		{0},
+		{"&Load Video...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_video},
+		{"&Load next frame...", NULL, (Fl_Callback*)ImpressionistUI::cb_load_next_frame},
+	    {0},
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
 		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
 		{ 0 },
@@ -830,10 +858,10 @@ ImpressionistUI::ImpressionistUI() {
 	group->end();
 	Fl_Group::current()->resizable(group); // toread
 
-	m_textBuff = new Fl_Text_Buffer();
+	/*m_textBuff = new Fl_Text_Buffer();
 	m_textDisplay = new Fl_Text_Display(0, 300, 600, 300);
 	m_textDisplay->buffer(m_textBuff);
-	m_textDisplay->linenumber_format("5%d");
+	m_textDisplay->linenumber_format("5%d");*/
 	// m_textBuff->append("%d", 3);
 	m_mainWindow->end();
 
