@@ -448,8 +448,8 @@ bool ImpressionistDoc::processVideo()
 	    m_pUI->m_paintView->refresh();
 		//Sleep(10);
 
-	    using namespace std;
-	    cout << avi->getPeriod() << endl;
+	    /*using namespace std;
+	    cout << avi->getPeriod() << endl;*/
 		return true;
 
 	//avi.writeNextFrame(m_ucPainting);
