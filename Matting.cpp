@@ -45,28 +45,70 @@ void Matting::solveAlpha()
 
 
 
-				for (int  y= -5; y < 5; y++)
+				//for (int  y= -5; y < 5; y++)
+				//{
+				//	for (int x = -5; x < 5; x++)
+				//	{
+				//		if (j + x <0 || j + x >width || i + y<0 || i + y>height - 1)
+				//			continue;
+				//		if(sqrt(pow(y*1.0,2.0)+pow(x*1.0,2.0))>5)
+				//			continue;
+				//		if (*(pDoc->m_ucPainting + (j+x + (i+y) * width) * 3) == 255 ||
+				//			*(pDoc->m_ucPainting + (j+x + (i+y) * width) * 3) == 0)
+				//		{
+				//			double distance = findingDistance(j, i, x+j,y+i);
+
+
+				//			if (distance < sqrt(3 * pow(5 / 255, 2.0)))
+				//			{
+				//				flag = 1;
+				//				newAlphaBitmap[j + i * width] = *(pDoc->m_ucPainting + (j + x + (i + y) * width) * 3);
+				//				for (int a = 0; a < 3; a++)
+				//					*(pDoc->m_ucPainting + (j + i * width) * 3 + a) = newAlphaBitmap[j + i * width];
+				//				break;
+				//			}
+				//				
+				//			//double weight = 1 - distance / 4;
+				//			int p = 0;
+				//			for (int i = 1; i < 10; i++)
+				//			{
+				//				if (k[p] < k[i])
+				//					p = i;
+				//			}
+
+				//			if (distance < k[p])
+				//			{
+				//				k[p] = distance;
+				//				alphas[p] = *(pDoc->m_ucPainting + (j+x + (i+y) * width) * 3);
+				//			}
+				//		}
+
+
+				//	}
+				//}
+
+				for (int  y=0; y < height; y++)
 				{
-					for (int x = -5; x < 5; x++)
+					for (int x = 0; x < width; x++)
 					{
-						if (j + x <0 || j + x >width || i + y<0 || i + y>height - 1)
+						if (j + x <0 || j + x >width-1 || i + y<0 || i + y>height - 1)
 							continue;
-						if(sqrt(pow(y*1.0,2.0)+pow(x*1.0,2.0))>5)
-							continue;
-						if (*(pDoc->m_ucPainting + (j+x + (i+y) * width) * 3) == 255 ||
-							*(pDoc->m_ucPainting + (j+x + (i+y) * width) * 3) == 0)
+						//if(sqrt(pow(y*1.0,2.0)+pow(x*1.0,2.0))>5)
+						//	continue;
+						if (*(pDoc->m_mattingAlphaBitmap + (x + y * width) * 3) == 255 ||
+							*(pDoc->m_mattingAlphaBitmap + (x + y * width) * 3) == 0)
 						{
-							double distance = findingDistance(j, i, x+j,y+i);
+							double distance = findingDistance(j, i, x, y);
 
 
-							if (distance < sqrt(3 * pow(5 / 255, 2.0)))
-							{
-								flag = 1;
-								newAlphaBitmap[j + i * width] = *(pDoc->m_ucPainting + (j + x + (i + y) * width) * 3);
-								for (int a = 0; a < 3; a++)
-									*(pDoc->m_ucPainting + (j + i * width) * 3 + a) = newAlphaBitmap[j + i * width];
-								break;
-							}
+							//if (distance < sqrt(3 * pow(3 / 255, 2.0)))
+							//{
+							//	flag = 1;
+							//	newAlphaBitmap[j + i * width] = *(pDoc->m_ucPainting + (x + y * width) * 3);
+							//	//for (int a = 0; a < 3; a++)
+							//	//	*(pDoc->m_ucPainting + (j + i * width) * 3 + a) = newAlphaBitmap[j + i * width];
+							//	break;
+							//}
 								
 							//double weight = 1 - distance / 4;
 							int p = 0;
@@ -79,7 +121,7 @@ void Matting::solveAlpha()
 							if (distance < k[p])
 							{
 								k[p] = distance;
-								alphas[p] = *(pDoc->m_ucPainting + (j+x + (i+y) * width) * 3);
+								alphas[p] = *(pDoc->m_ucPainting + (x + y * width) * 3);
 							}
 						}
 
@@ -87,14 +129,15 @@ void Matting::solveAlpha()
 					}
 				}
 
+
 				if (!flag)
 				{
 					double sum = 0.0;
 					double new_alpha = 0.0;
 					for (int a = 0; a < 10; a++)
-						sum += (1 - k[a]);
+						sum += (1 - k[a]/2);
 					for (int a = 0; a < 10; a++)
-						 new_alpha += (1 - k[a]) / sum * alphas[a] /255;
+						 new_alpha += (1 - k[a]/2) / sum * alphas[a] /255;
 					newAlphaBitmap[j + i * width] = 255 * new_alpha;
 				}
 
@@ -102,7 +145,7 @@ void Matting::solveAlpha()
 					*(pDoc->m_ucPainting + (j + i * width) * 3 + a) = newAlphaBitmap[j + i * width] ;
 
 
-				std::cout << newAlphaBitmap[j + i * width] << '\n';
+				//std::cout << newAlphaBitmap[j + i * width] << '\n';
 
 			}
 
@@ -126,8 +169,8 @@ double Matting::findingDistance(int x1,int y1,int x2,int y2)
 		color2 = *(pDoc->m_ucBitmap + (x2 + y2 * width) * 3 + a) / 255;
 		d += pow(color1 - color2, 2.0);
 	}
-
-
+	d += pow(x1 - x2, 2.0) / (pow(pDoc->m_nWidth, 2.0) + pow(pDoc->m_nHeight, 2.0));
+	d += pow(y1 - y2, 2.0) / (pow(pDoc->m_nWidth, 2.0) + pow(pDoc->m_nHeight, 2.0));
 	//d += (pow(x1 - x2, 2.0) / (pow(width, 2.0) + pow(height, 2.0)));
 	//d += (pow(y1 - y2, 2.0) / (pow(width, 2.0) + pow(height, 2.0)));
 	

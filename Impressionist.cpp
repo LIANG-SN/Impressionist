@@ -19,8 +19,7 @@
 
 #include "Cluster.h"
 
-#include <Eigen/Dense>
-using namespace Eigen;
+
 
 ImpressionistUI *impUI;
 ImpressionistDoc *impDoc;

@@ -9,7 +9,6 @@
 
 #include <math.h>
 #include <iostream>
-#include <Eigen/Dense>
 
 #include "impressionistUI.h"
 #include "impressionistDoc.h"
