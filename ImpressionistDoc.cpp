@@ -27,6 +27,8 @@
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <Windows.h>
+
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
@@ -227,7 +229,7 @@ int ImpressionistDoc::loadImage(char *iname)
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
 								width*2, 
-								height+325); // additional 300 for text window
+								height+25); // additional 300 for text window
 
 	// display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);	
@@ -376,7 +378,88 @@ int	ImpressionistDoc::loadAlphaMappedImage(char* iname)
 	return 1;
 }
 
+int ImpressionistDoc::loadVideo(char* iname)
+{
+	// try to open the image to read
+	unsigned char* data;
+	int				width, height;
+	avi = new Avi;
+	avi->readStart(iname, width, height);
 
+	data = avi->getNextFrame();
+	if (data == NULL)
+	{
+		fl_alert("Can't load video file");
+		return 0;
+	}
+
+	// reflect the fact of loading the new video
+	m_nWidth = width;
+	m_nPaintWidth = width;
+	m_nHeight = height;
+	m_nPaintHeight = height;
+
+	// release old storage
+	if (m_ucBitmap) delete[] m_ucBitmap;
+	if (m_ucPainting) delete[] m_ucPainting;
+
+	m_ucBitmap = data;
+
+	// allocate space for draw view
+	m_ucPainting = new unsigned char[width * height * 3];
+	memset(m_ucPainting, 0, width * height * 3);
+	m_ucPainting_prev = new unsigned char[width * height * 3];
+	memset(m_ucPainting_prev, 0, width * height * 3);
+
+	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(),
+		m_pUI->m_mainWindow->y(),
+		width * 2,
+		height + 25); // additional 300 for text window
+
+// display it on origView
+	m_pUI->m_origView->resizeWindow(width, height);
+	m_pUI->m_origView->showImageChoice(SHOW_ORIGIN_IMAGE);
+
+	// refresh paint view as well
+	m_pUI->m_paintView->resizeWindow(width, height);
+
+	m_pUI->m_paintView->setEventType(AUTO_PAINT);
+	m_pUI->m_paintView->setEventTrue();
+	m_pUI->m_paintView->refresh();
+
+	
+	avi->writeStart("new_video");
+	//avi.writeNextFrame(m_ucPainting);
+
+	return 1;
+}
+
+bool ImpressionistDoc::processVideo()
+{
+
+		unsigned char* temp = avi->getNextFrame();
+		if (temp == nullptr)
+			return false;
+
+		m_ucBitmap = temp;
+	    m_pUI->m_origView->refresh();
+	    m_pUI->m_paintView->setEventType(AUTO_PAINT);
+	    m_pUI->m_paintView->setEventTrue();
+	    m_pUI->m_paintView->refresh();
+		//Sleep(10);
+
+	    using namespace std;
+	    cout << avi->getPeriod() << endl;
+		return true;
+
+	//avi.writeNextFrame(m_ucPainting);
+}
+void ImpressionistDoc::videoEnd()
+{
+	avi->readEnd();
+	delete avi;
+	avi = nullptr;
+}
 //----------------------------------------------------------------
 // Save the specified image
 // This is called by the UI when the save image menu button is 

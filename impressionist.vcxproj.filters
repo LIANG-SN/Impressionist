@@ -66,6 +66,9 @@
     <ClCompile Include="AlphaMappedBrush.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="Avi.cpp">
+=======
     <ClCompile Include="WarpBrush.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,6 +76,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Matting.cpp">
+>>>>>>> ee5a650ff2e1104c744bae33fd7c56e74f3c8ac3
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,6 +132,22 @@
     <ClInclude Include="AlphaMappedBrush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Avi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="impressionist.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+=======
     <ClInclude Include="WarpBrush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -137,5 +157,6 @@
     <ClInclude Include="Matting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+>>>>>>> ee5a650ff2e1104c744bae33fd7c56e74f3c8ac3
   </ItemGroup>
 </Project>
