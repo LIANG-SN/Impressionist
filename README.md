@@ -3,26 +3,47 @@
 HKUST COMP4411 Project1
 
 W per new brush						yes/
+
 W border clipping					yes/
+
 W (red) marker						yes/
+
 W swap							yes/
+
 B RGB scale						yes/
+
 B blur/sharp brush					yes/
+
 B 1 level undo						yes/
+
 B dissolve						yes/
+
 BW fade in/out input on output canvas			yes/
+
 BW mural (blending)					yes/
+
 BW alpha brush						yes/
+
 BW automatic paint whole image				yes/
+
 BW gradient from user-specified image			yes/
+
 BW edge clipping					yes/
+
 2B user-specified kernel				yes/
+
 2B edge detection + user-specified edge clipping	yes/
+
 2B multiresolution					yes/
+
 2B warp brush						yes/
+
 2B curved brush following image gradient		yes/
+
 4B mosaic						yes/
+
 4B impressionist video with temporal coherency		yes/
+
 8B Bayesian matting					yes/
 
 Readme:
